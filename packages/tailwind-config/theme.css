@@ -1,0 +1,440 @@
+@import "tailwindcss";
+
+@theme {
+  --breakpoint-3xl: 1792px;
+  /* scale down to 90% of defaults */
+  --text-2xs: 0.5625rem;
+  --text-xs: 0.675rem;
+  --text-sm: 0.7875rem;
+  --text-base: 0.9rem;
+  --text-lg: 1.0125rem;
+  --text-xl: 1.125rem;
+  --text-2xl: 1.35rem;
+  --text-3xl: 1.6875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 2.7rem;
+  --text-6xl: 3.375rem;
+  --text-7xl: 4.05rem;
+  --text-8xl: 5.4rem;
+  --text-9xl: 7.2rem;
+
+  --padding-0\.5: 0.1125rem;
+  --padding-1: 0.225rem;
+  --padding-1\.5: 0.3375rem;
+  --padding-2: 0.45rem;
+  --padding-2\.5: 0.5625rem;
+  --padding-3: 0.675rem;
+  --padding-3\.5: 0.7875rem;
+  --padding-4: 0.9rem;
+  --padding-5: 1.125rem;
+  --padding-6: 1.35rem;
+  --padding-7: 1.575rem;
+  --padding-8: 1.8rem;
+  --padding-9: 2.025rem;
+  --padding-10: 2.25rem;
+  --padding-11: 2.475rem;
+  --padding-12: 2.7rem;
+  --padding-16: 3.6rem;
+  --padding-20: 4.5rem;
+  --padding-24: 5.4rem;
+  --padding-32: 7.2rem;
+  --padding-40: 9rem;
+  --padding-48: 10.8rem;
+  --padding-56: 12.6rem;
+  --padding-64: 14.4rem;
+  --padding-72: 16.2rem;
+  --padding-80: 18rem;
+  --padding-96: 21.6rem;
+
+  --margin-0\.5: 0.1125rem;
+  --margin-1: 0.225rem;
+  --margin-1\.5: 0.3375rem;
+  --margin-2: 0.45rem;
+  --margin-2\.5: 0.5625rem;
+  --margin-3: 0.675rem;
+  --margin-3\.5: 0.7875rem;
+  --margin-4: 0.9rem;
+  --margin-5: 1.125rem;
+  --margin-6: 1.35rem;
+  --margin-7: 1.575rem;
+  --margin-8: 1.8rem;
+  --margin-9: 2.025rem;
+  --margin-10: 2.25rem;
+  --margin-11: 2.475rem;
+  --margin-12: 2.7rem;
+  --margin-16: 3.6rem;
+  --margin-20: 4.5rem;
+  --margin-24: 5.4rem;
+  --margin-32: 7.2rem;
+  --margin-40: 9rem;
+  --margin-48: 10.8rem;
+  --margin-56: 12.6rem;
+  --margin-64: 14.4rem;
+  --margin-72: 16.2rem;
+  --margin-80: 18rem;
+  --margin-96: 21.6rem;
+
+  --spacing-0\.5: 0.1125rem;
+  --spacing-1: 0.225rem;
+  --spacing-1\.5: 0.3375rem;
+  --spacing-2: 0.45rem;
+  --spacing-2\.5: 0.5625rem;
+  --spacing-3: 0.675rem;
+  --spacing-3\.5: 0.7875rem;
+  --spacing-4: 0.9rem;
+  --spacing-5: 1.125rem;
+  --spacing-6: 1.35rem;
+  --spacing-7: 1.575rem;
+  --spacing-8: 1.8rem;
+  --spacing-9: 2.025rem;
+  --spacing-10: 2.25rem;
+  --spacing-11: 2.475rem;
+  --spacing-12: 2.7rem;
+  --spacing-16: 3.6rem;
+  --spacing-20: 4.5rem;
+  --spacing-24: 5.4rem;
+  --spacing-32: 7.2rem;
+  --spacing-40: 9rem;
+  --spacing-48: 10.8rem;
+  --spacing-56: 12.6rem;
+  --spacing-64: 14.4rem;
+  --spacing-72: 16.2rem;
+  --spacing-80: 18rem;
+  --spacing-96: 21.6rem;
+
+  --gap-0\.5: 0.1125rem;
+  --gap-1: 0.225rem;
+  --gap-1\.5: 0.3375rem;
+  --gap-2: 0.45rem;
+  --gap-2\.5: 0.5625rem;
+  --gap-3: 0.675rem;
+  --gap-3\.5: 0.7875rem;
+  --gap-4: 0.9rem;
+  --gap-5: 1.125rem;
+  --gap-6: 1.35rem;
+  --gap-7: 1.575rem;
+  --gap-8: 1.8rem;
+  --gap-9: 2.025rem;
+  --gap-10: 2.25rem;
+  --gap-11: 2.475rem;
+  --gap-12: 2.7rem;
+  --gap-16: 3.6rem;
+  --gap-20: 4.5rem;
+  --gap-24: 5.4rem;
+  --gap-32: 7.2rem;
+  --gap-40: 9rem;
+  --gap-48: 10.8rem;
+  --gap-56: 12.6rem;
+  --gap-64: 14.4rem;
+  --gap-72: 16.2rem;
+  --gap-80: 18rem;
+  --gap-96: 21.6rem;
+}
+
+:root {
+  color-scheme: light !important;
+
+  --color-primary-100: 63, 118, 255;
+
+  --color-custom-background-90: 247, 247, 247; /* secondary bg */
+
+  --brand-grad-from: var(--color-blue-50);
+  --brand-grad-to: var(--color-white);
+
+  --color-text-100: 23, 23, 23; /* primary text */
+  --color-text-400: 163, 163, 163; /* placeholder text */
+
+  --color-heading-text-500: #0b1110;
+
+  --color-border-100: 245, 245, 245; /* subtle border= 1 */
+  --color-border-200: 229, 229, 229; /* subtle border- 2 */
+  --color-border-300: 212, 212, 212; /* strong border- 1 */
+  --color-border-400: 185, 185, 185; /* strong border- 2 */
+
+  /* onboarding colors */
+  --gradient-onboarding-100: linear-gradient(
+    106deg,
+    #f2f6ff 29.8%,
+    #e1eaff 99.34%
+  );
+  --gradient-onboarding-200: linear-gradient(
+    129deg,
+    rgba(255, 255, 255, 0) -22.23%,
+    rgba(255, 255, 255, 0.8) 62.98%
+  );
+  --gradient-onboarding-300: linear-gradient(
+    164deg,
+    #fff 4.25%,
+    rgba(255, 255, 255, 0.06) 93.5%
+  );
+  --gradient-onboarding-400: linear-gradient(
+    129deg,
+    rgba(255, 255, 255, 0) -22.23%,
+    rgba(255, 255, 255, 0.8) 62.98%
+  );
+
+  --color-onboarding-text-100: 23, 23, 23;
+  --color-onboarding-text-200: 58, 58, 58;
+  --color-onboarding-text-300: 82, 82, 82;
+  --color-onboarding-text-400: 163, 163, 163;
+
+  --color-onboarding-background-100: 236, 241, 255;
+  --color-onboarding-background-200: 255, 255, 255;
+  --color-onboarding-background-300: 236, 241, 255;
+  --color-onboarding-background-400: 177, 206, 250;
+
+  --color-onboarding-border-100: 229, 229, 229;
+  --color-onboarding-border-200: 217, 228, 255;
+  --color-onboarding-border-300: 229, 229, 229, 0.5;
+
+  --color-onboarding-shadow-sm: 0px 4px 20px 0px rgba(126, 139, 171, 0.1);
+}
+
+.dark {
+  color-scheme: dark !important;
+  --brand-grad-from: #14203e;
+  --brand-grad-to: #0b1110;
+
+  --color-primary-100: 63, 118, 255;
+
+  --color-custom-background-90: 32, 32, 32; /* secondary bg */
+
+  --color-text-100: 229, 229, 229; /* primary text */
+  --color-text-400: 82, 82, 82; /* placeholder text */
+
+  --color-heading-text-500: #f1f5f9;
+
+  --color-border-100: 34, 34, 34; /* subtle border= 1 */
+  --color-border-200: 38, 38, 38; /* subtle border- 2 */
+  --color-border-300: 46, 46, 46; /* strong border- 1 */
+  --color-border-400: 58, 58, 58; /* strong border- 2 */
+
+  /* onboarding colors */
+  --gradient-onboarding-100: linear-gradient(
+    106deg,
+    #18191b 25.17%,
+    #18191b 99.34%
+  );
+  --gradient-onboarding-200: linear-gradient(
+    129deg,
+    rgba(47, 49, 53, 0.8) -22.23%,
+    rgba(33, 34, 37, 0.8) 62.98%
+  );
+  --gradient-onboarding-300: linear-gradient(
+    167deg,
+    rgba(47, 49, 53, 0.45) 19.22%,
+    #212225 98.48%
+  );
+
+  --color-onboarding-text-100: 237, 238, 240;
+  --color-onboarding-text-200: 176, 180, 187;
+  --color-onboarding-text-300: 118, 123, 132;
+  --color-onboarding-text-400: 105, 110, 119;
+
+  --color-onboarding-background-100: 54, 58, 64;
+  --color-onboarding-background-200: 40, 42, 45;
+  --color-onboarding-background-300: 40, 42, 45;
+  --color-onboarding-background-400: 67, 72, 79;
+
+  --color-onboarding-border-100: 54, 58, 64;
+  --color-onboarding-border-200: 54, 58, 64;
+  --color-onboarding-border-300: 34, 35, 38, 0.5;
+
+  --color-onboarding-shadow-sm: 0px 4px 20px 0px rgba(39, 44, 56, 0.1);
+}
+
+@theme inline {
+  /* --color-background: var(--background);
+  --color-foreground: var(--foreground); */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-custom-primary: rgb(var(--color-primary-100));
+
+  --color-custom-text-100: rgb(var(--color-text-100));
+  --color-custom-text-400: rgb(var(--color-text-400));
+
+  --color-custom-background-90: rgb(var(--color-custom-background-90));
+
+  --color-custom-border-100: rgb(var(--color-border-100));
+  --color-custom-border-200: rgb(var(--color-border-200));
+  --color-custom-border-300: rgb(var(--color-border-300));
+  --color-custom-border-400: rgb(var(--color-border-400));
+
+  --color-onboarding-text-100: rgb(var(--color-onboarding-text-100));
+  --color-onboarding-text-200: rgb(var(--color-onboarding-text-200));
+  --color-onboarding-text-300: rgb(var(--color-onboarding-text-300));
+  --color-onboarding-text-400: rgb(var(--color-onboarding-text-400));
+  --color-heading-text-500: var(--color-heading-text-500);
+
+  --color-onboarding-background-100: rgb(
+    var(--color-onboarding-background-100)
+  );
+  --color-onboarding-background-200: rgb(
+    var(--color-onboarding-background-200)
+  );
+  --color-onboarding-background-300: rgb(
+    var(--color-onboarding-background-300)
+  );
+  --color-onboarding-background-400: rgb(
+    var(--color-onboarding-background-400)
+  );
+
+  --color-onboarding-border-100: rgb(var(--color-onboarding-border-100));
+  --color-onboarding-border-200: rgb(var(--color-onboarding-border-200));
+  --color-onboarding-border-300: rgb(var(--color-onboarding-border-300));
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+@utility bg-brand-gradient {
+  @apply bg-gradient-to-b;
+  --tw-gradient-from: var(--brand-grad-from);
+  --tw-gradient-to: var(--brand-grad-to);
+  /* This is the crucial line you were missing */
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+/* * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  font-variant-ligatures: none;
+  -webkit-font-variant-ligatures: none;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+} */
+
+/* html {
+  font-family: "Inter", sans-serif;
+} */
+
+body {
+  /* background: var(--background); */
+  color: var(--color-text-100);
+  /* font-family: Arial, Helvetica, sans-serif; */
+}
+
+.loading-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  font-size: 2rem;
+}
+
+.loading-screen .dot {
+  position: relative;
+  width: 2rem;
+  height: 2rem;
+  margin: 0.8em;
+  border-radius: 50%;
+}
+
+.loading-screen .dot::before {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  border-radius: inherit;
+  animation: anime 2s ease-out infinite;
+}
+
+@keyframes anime {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50%,
+  75% {
+    transform: scale(2.5);
+  }
+  80%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes anime {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50%,
+  75% {
+    transform: scale(2.5);
+  }
+  80%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.loading-screen .dot:nth-child(1) {
+  background-color: #4285f5;
+}
+.loading-screen .dot:nth-child(2) {
+  background-color: #ea4436;
+}
+
+.loading-screen .dot:nth-child(3) {
+  background-color: #fbbd06;
+}
+
+.loading-screen .dot:nth-child(4) {
+  background-color: #34a952;
+}
+
+.loading-screen .dot:nth-child(5) {
+  background-color: #cf9fff;
+}
+
+.loading-screen .dot:nth-child(1)::before {
+  animation-delay: 0.2s;
+}
+.loading-screen .dot:nth-child(2)::before {
+  animation-delay: 0.4s;
+}
+.loading-screen .dot:nth-child(3)::before {
+  animation-delay: 0.6s;
+}
+.loading-screen .dot:nth-child(4)::before {
+  animation-delay: 0.8s;
+}
+.loading-screen .dot:nth-child(5)::before {
+  animation-delay: 1s;
+}
+
+::-webkit-input-placeholder,
+::placeholder,
+:-ms-input-placeholder {
+  color: rgb(var(--color-text-400));
+}
+
+/* highlight class */
+.highlight {
+  border: 1px solid rgb(var(--color-primary-100)) !important;
+}
+.highlight-with-line {
+  border-left: 5px solid rgb(var(--color-primary-100)) !important;
+  background: rgb(var(--color-background-80));
+}
+
+/* By applying below class, the autofilled text in form fields will not have the default autofill background color and styles applied by WebKit browsers  */
+
+.disable-autofill-style:-webkit-autofill,
+.disable-autofill-style:-webkit-autofill:hover,
+.disable-autofill-style:-webkit-autofill:focus,
+.disable-autofill-style:-webkit-autofill:active {
+  -webkit-background-clip: text;
+}

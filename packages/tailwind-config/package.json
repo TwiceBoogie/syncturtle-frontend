@@ -1,0 +1,21 @@
+{
+  "name": "@syncturtle/tailwind-config",
+  "private": true,
+  "type": "module",
+  "files": [
+    "theme.css",
+    "postcss-preset.mjs",
+    "postcss-preset.d.ts"
+  ],
+  "exports": {
+    "./theme.css": "./theme.css",
+    "./postcss-preset.mjs": {
+      "types": "./postcss-preset.d.ts",
+      "default": "./postcss-preset.mjs"
+    }
+  },
+  "peerDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4"
+  }
+}

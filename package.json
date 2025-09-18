@@ -1,4 +1,23 @@
 {
-  "name": "syncturtle-frontend",
+  "private": true,
+  "name": "syncturtle",
+  "workspaces": [
+    "admin",
+    "web",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "tsc --noEmit",
+    "clean": "turbo run clean && rm -rf .turbo && rm -rf .next && rm -rf node_modules && rm -rf dist"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.6"
+  },
+  "resolutions": {
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
   "packageManager": "yarn@4.9.4"
 }

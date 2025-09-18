@@ -1,0 +1,31 @@
+@import "@syncturtle/tailwind-config/theme.css";
+
+@source "../stories/**/*.{ts,tsx,mdx}" "../src/**/*.{ts,tsx}";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* theme tokens (light/dark) */
+:root {
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  color-scheme: light;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+html,
+body,
+#storybook-root,
+.sb-show-main,
+.docs-story {
+  @apply bg-background text-foreground;
+}

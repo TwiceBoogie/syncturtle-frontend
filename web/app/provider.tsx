@@ -1,16 +1,18 @@
 "use client";
 
 import { FC, ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { ThemeProvider as NextThemeProvider } from "next-themes";
-import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import { SWRConfig } from "swr";
+import { HeroUIProvider, ToastProvider } from "@heroui/react";
+import { InstanceWrapper } from "@/lib/wrappers/instance-wrapper";
 import { WEB_SWR_CONFIG } from "@syncturtle/constants";
 import { StoreProvider } from "@/lib/store-context";
-import { InstanceWrapper } from "@/lib/wrappers/instance-wrapper";
-import { useRouter } from "next/navigation";
 
 export interface IAppProvider {
   children: ReactNode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  initialState?: any;
 }
 
 declare module "@react-types/shared" {
@@ -20,19 +22,25 @@ declare module "@react-types/shared" {
 }
 
 export const AppProvider: FC<IAppProvider> = (props) => {
-  const { children } = props;
+  const { children, initialState = {} } = props;
   const router = useRouter();
 
   return (
-    <StoreProvider>
-      <NextThemeProvider attribute={"class"} defaultTheme="system" enableSystem themes={["dark", "light"]}>
-        <InstanceWrapper>
-          <HeroUIProvider navigate={router.push}>
-            <ToastProvider />
-            <SWRConfig value={WEB_SWR_CONFIG}>{children}</SWRConfig>
-          </HeroUIProvider>
-        </InstanceWrapper>
-      </NextThemeProvider>
-    </StoreProvider>
+    <NextThemeProvider
+      attribute={"class"}
+      defaultTheme="system"
+      enableSystem
+      enableColorScheme
+      themes={["dark", "light"]}
+    >
+      <SWRConfig value={WEB_SWR_CONFIG}>
+        <HeroUIProvider navigate={router.push}>
+          <ToastProvider />
+          <StoreProvider initialState={initialState}>
+            <InstanceWrapper>{children}</InstanceWrapper>
+          </StoreProvider>
+        </HeroUIProvider>
+      </SWRConfig>
+    </NextThemeProvider>
   );
 };

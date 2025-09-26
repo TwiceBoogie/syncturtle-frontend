@@ -1,6 +1,7 @@
 import { InstanceService } from "@/services/instance.service";
-import { IInstance, IInstanceConfig, Unsub } from "@syncturtle/types";
+import { IInstance, IInstanceConfig, Unsub, IInstanceInfo } from "@syncturtle/types";
 import { Emitter } from "@syncturtle/utils";
+import { log } from "@/lib/log";
 
 type TError = {
   status: string;
@@ -28,6 +29,7 @@ export interface IInstanceStore {
 
   // actions; store methods that change state
   fetchInstanceInfo: () => Promise<void>;
+  hydrate: (data: IInstanceInfo) => void;
 }
 
 // initial state used st first render and during SSR
@@ -53,50 +55,48 @@ export class InstanceStore implements IInstanceStore {
     this.instanceService = new InstanceService();
   }
 
+  public hydrate(data: IInstanceInfo | TError) {
+    if (data) {
+      if ("instance" in data && "config" in data) {
+        this.set({ instance: data.instance, config: data.config });
+      } else if ("status" in data && "message" in data) {
+        this.set({ error: data });
+      }
+    }
+  }
+
   // use arrow func so 'this' stays bound to instance
   // register listener, react will pass a callback here and call the
   // return func on onmount to unsubscribe
   public subscribe = (cb: () => void): Unsub => {
-    console.log(cb);
+    // console.log(cb);
     return this.emitter.subscribe(cb);
   };
   // return current state snapshot (read during render)
   public getSnapshot = (): TSnapshot => this._snap;
   // return server-render snapshot; stable and serializble
-  public getServerSnapshot = (): TSnapshot => initial;
+  public getServerSnapshot = (): TSnapshot => this._snap;
 
-  public fetchInstanceInfo = (): Promise<void> => {
-    // if request already in flight, return the same promise to dedupe
-    if (this.inflight) return this.inflight;
-
+  public fetchInstanceInfo = async (): Promise<void> => {
     // flip loading on and clear previous errors
     this.set({ isLoading: true, error: undefined });
-
-    // create and store the inflight promise so callers can await it
-    this.inflight = (async () => {
-      try {
-        const instanceInfo = await this.instanceService.getInstanceInfo();
-        this.set({
-          instance: instanceInfo.instance,
-          config: instanceInfo.config,
-          isLoading: false,
-        });
-      } catch (error) {
-        this.set({
-          isLoading: false,
-          error: {
-            status: "error",
-            message: "Failed to fetch isntance info",
-          },
-        });
-        throw error;
-      } finally {
-        // allow future requests again
-        this.inflight = null;
-      }
-    })();
-
-    return this.inflight;
+    try {
+      const instanceInfo = await this.instanceService.getInstanceInfo();
+      this.set({
+        instance: instanceInfo.instance,
+        config: instanceInfo.config,
+        isLoading: false,
+      });
+    } catch (error) {
+      this.set({
+        isLoading: false,
+        error: {
+          status: "error",
+          message: "Failed to fetch isntance info",
+        },
+      });
+      throw error;
+    }
   };
 
   private set(patch: Partial<TSnapshot>) {

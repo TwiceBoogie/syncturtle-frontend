@@ -1,5 +1,4 @@
 import { StoreContext } from "@/lib/store-context";
-import { IInstanceStore } from "@/store/instance.store";
 import { useContext, useSyncExternalStore } from "react";
 
 export const useInstance = () => {

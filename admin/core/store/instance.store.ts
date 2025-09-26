@@ -1,10 +1,10 @@
 import { InstanceService } from "@/services/instance.service";
-import { IInstance, IInstanceConfig, IInstanceInfo, Unsub } from "@syncturtle/types";
+import { IInstance, IInstanceConfig, Unsub, IInstanceInfo } from "@syncturtle/types";
 import { Emitter } from "@syncturtle/utils";
 
 export const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 const DEBUG_MIN_DELAY_MS = Number(process.env.NEXT_PUBLIC_DEBUG_DELAY_MS ?? 0);
-console.log(DEBUG_MIN_DELAY_MS);
+
 type TError = {
   status: string;
   message: string;
@@ -26,6 +26,7 @@ export interface IInstanceStore {
   subscribe(cb: () => void): Unsub;
   getSnapshot(): TSnapshot;
   getServerSnapshot(): TSnapshot;
+  hydrate: (data: IInstanceInfo) => void;
   fetchInstanceInfo: () => Promise<IInstanceInfo>;
 }
 
@@ -47,13 +48,23 @@ export class InstanceStore implements IInstanceStore {
     this.instanceService = new InstanceService();
   }
 
+  public hydrate(data: IInstanceInfo | TError) {
+    if (data) {
+      if ("instance" in data && "config" in data) {
+        this.set({ instance: data.instance, config: data.config });
+      } else if ("status" in data && "message" in data) {
+        this.set({ error: data });
+      }
+    }
+  }
+
   public subscribe = (cb: () => void): Unsub => {
-    console.log(cb);
+    // console.log(cb);
     return this.emitter.subscribe(cb);
   };
 
   public getSnapshot = (): TSnapshot => this._snap;
-  public getServerSnapshot = (): TSnapshot => initial;
+  public getServerSnapshot = (): TSnapshot => this._snap;
 
   public fetchInstanceInfo = () => {
     // if request already in flight, return the same promise to dedupe
@@ -71,7 +82,7 @@ export class InstanceStore implements IInstanceStore {
         //   DEBUG_MIN_DELAY_MS > 0 ? sleep(DEBUG_MIN_DELAY_MS) : Promise.resolve(),
         // ]);
         const instanceInfo = await this.instanceService.info();
-        console.log(instanceInfo);
+        // console.log(instanceInfo);
         this.set({
           instance: instanceInfo.instance,
           config: instanceInfo.config,

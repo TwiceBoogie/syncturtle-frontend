@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --breakpoint-3xl: 1792px;
+  --breakpoint-3xl: 112rem;
   /* scale down to 90% of defaults */
   --text-2xs: 0.5625rem;
   --text-xs: 0.675rem;
@@ -18,62 +18,7 @@
   --text-8xl: 5.4rem;
   --text-9xl: 7.2rem;
 
-  --padding-0\.5: 0.1125rem;
-  --padding-1: 0.225rem;
-  --padding-1\.5: 0.3375rem;
-  --padding-2: 0.45rem;
-  --padding-2\.5: 0.5625rem;
-  --padding-3: 0.675rem;
-  --padding-3\.5: 0.7875rem;
-  --padding-4: 0.9rem;
-  --padding-5: 1.125rem;
-  --padding-6: 1.35rem;
-  --padding-7: 1.575rem;
-  --padding-8: 1.8rem;
-  --padding-9: 2.025rem;
-  --padding-10: 2.25rem;
-  --padding-11: 2.475rem;
-  --padding-12: 2.7rem;
-  --padding-16: 3.6rem;
-  --padding-20: 4.5rem;
-  --padding-24: 5.4rem;
-  --padding-32: 7.2rem;
-  --padding-40: 9rem;
-  --padding-48: 10.8rem;
-  --padding-56: 12.6rem;
-  --padding-64: 14.4rem;
-  --padding-72: 16.2rem;
-  --padding-80: 18rem;
-  --padding-96: 21.6rem;
-
-  --margin-0\.5: 0.1125rem;
-  --margin-1: 0.225rem;
-  --margin-1\.5: 0.3375rem;
-  --margin-2: 0.45rem;
-  --margin-2\.5: 0.5625rem;
-  --margin-3: 0.675rem;
-  --margin-3\.5: 0.7875rem;
-  --margin-4: 0.9rem;
-  --margin-5: 1.125rem;
-  --margin-6: 1.35rem;
-  --margin-7: 1.575rem;
-  --margin-8: 1.8rem;
-  --margin-9: 2.025rem;
-  --margin-10: 2.25rem;
-  --margin-11: 2.475rem;
-  --margin-12: 2.7rem;
-  --margin-16: 3.6rem;
-  --margin-20: 4.5rem;
-  --margin-24: 5.4rem;
-  --margin-32: 7.2rem;
-  --margin-40: 9rem;
-  --margin-48: 10.8rem;
-  --margin-56: 12.6rem;
-  --margin-64: 14.4rem;
-  --margin-72: 16.2rem;
-  --margin-80: 18rem;
-  --margin-96: 21.6rem;
-
+  --spacing-0: 0rem;
   --spacing-0\.5: 0.1125rem;
   --spacing-1: 0.225rem;
   --spacing-1\.5: 0.3375rem;
@@ -102,46 +47,41 @@
   --spacing-80: 18rem;
   --spacing-96: 21.6rem;
 
-  --gap-0\.5: 0.1125rem;
-  --gap-1: 0.225rem;
-  --gap-1\.5: 0.3375rem;
-  --gap-2: 0.45rem;
-  --gap-2\.5: 0.5625rem;
-  --gap-3: 0.675rem;
-  --gap-3\.5: 0.7875rem;
-  --gap-4: 0.9rem;
-  --gap-5: 1.125rem;
-  --gap-6: 1.35rem;
-  --gap-7: 1.575rem;
-  --gap-8: 1.8rem;
-  --gap-9: 2.025rem;
-  --gap-10: 2.25rem;
-  --gap-11: 2.475rem;
-  --gap-12: 2.7rem;
-  --gap-16: 3.6rem;
-  --gap-20: 4.5rem;
-  --gap-24: 5.4rem;
-  --gap-32: 7.2rem;
-  --gap-40: 9rem;
-  --gap-48: 10.8rem;
-  --gap-56: 12.6rem;
-  --gap-64: 14.4rem;
-  --gap-72: 16.2rem;
-  --gap-80: 18rem;
-  --gap-96: 21.6rem;
+  --spacing-page-x: 1.25rem;
+  /* --spacing-page-y: 1.35rem; */
+  --size-header: 3.25rem;
 }
 
 :root {
-  color-scheme: light !important;
-
+  --color-primary-10: 236, 241, 255;
+  --color-primary-20: 217, 228, 255;
+  --color-primary-30: 197, 214, 255;
+  --color-primary-40: 178, 200, 255;
+  --color-primary-50: 159, 187, 255;
+  --color-primary-60: 140, 173, 255;
+  --color-primary-70: 121, 159, 255;
+  --color-primary-80: 101, 145, 255;
+  --color-primary-90: 82, 132, 255;
   --color-primary-100: 63, 118, 255;
+  --color-primary-200: 57, 106, 230;
+  --color-primary-300: 50, 94, 204;
+  --color-primary-400: 44, 83, 179;
+  --color-primary-500: 38, 71, 153;
+  --color-primary-600: 32, 59, 128;
+  --color-primary-700: 25, 47, 102;
+  --color-primary-800: 19, 35, 76;
+  --color-primary-900: 13, 24, 51;
 
-  --color-custom-background-90: 247, 247, 247; /* secondary bg */
+  --color-background-100: 255, 255, 255; /* primary bg */
+  --color-background-90: 247, 247, 247; /* secondary bg */
+  --color-background-80: 232, 232, 232; /* tertiary bg */
 
   --brand-grad-from: var(--color-blue-50);
   --brand-grad-to: var(--color-white);
 
   --color-text-100: 23, 23, 23; /* primary text */
+  --color-text-200: 58, 58, 58; /* secondary text */
+  --color-text-300: 82, 82, 82; /* tertiary text */
   --color-text-400: 163, 163, 163; /* placeholder text */
 
   --color-heading-text-500: #0b1110;
@@ -150,6 +90,36 @@
   --color-border-200: 229, 229, 229; /* subtle border- 2 */
   --color-border-300: 212, 212, 212; /* strong border- 1 */
   --color-border-400: 185, 185, 185; /* strong border- 2 */
+
+  --color-sidebar-border-100: var(
+    --color-border-100
+  ); /* subtle sidebar border= 1 */
+  --color-sidebar-border-200: var(
+    --color-border-100
+  ); /* subtle sidebar border- 2 */
+  --color-sidebar-border-300: var(
+    --color-border-100
+  ); /* strong sidebar border- 1 */
+  --color-sidebar-border-400: var(
+    --color-border-100
+  ); /* strong sidebar border- 2 */
+
+  --color-sidebar-background-100: var(
+    --color-background-100
+  ); /* primary sidebar bg */
+  --color-sidebar-background-90: var(
+    --color-background-90
+  ); /* secondary sidebar bg */
+  --color-sidebar-background-80: var(
+    --color-background-80
+  ); /* tertiary sidebar bg */
+
+  --color-sidebar-text-100: var(--color-text-100); /* primary sidebar text */
+  --color-sidebar-text-200: var(--color-text-200); /* secondary sidebar text */
+  --color-sidebar-text-300: var(--color-text-300); /* tertiary sidebar text */
+  --color-sidebar-text-400: var(
+    --color-text-400
+  ); /* sidebar placeholder text */
 
   /* onboarding colors */
   --gradient-onboarding-100: linear-gradient(
@@ -191,15 +161,20 @@
 }
 
 .dark {
-  color-scheme: dark !important;
   --brand-grad-from: #14203e;
   --brand-grad-to: #0b1110;
 
   --color-primary-100: 63, 118, 255;
 
-  --color-custom-background-90: 32, 32, 32; /* secondary bg */
+  --color-background-100: 25, 25, 25; /* primary bg */
+  --color-background-90: 32, 32, 32; /* secondary bg */
+  --color-background-80: 44, 44, 44; /* tertiary bg */
+
+  --color-background-90: 32, 32, 32; /* secondary bg */
 
   --color-text-100: 229, 229, 229; /* primary text */
+  --color-text-200: 163, 163, 163; /* secondary text */
+  --color-text-300: 115, 115, 115; /* tertiary text */
   --color-text-400: 82, 82, 82; /* placeholder text */
 
   --color-heading-text-500: #f1f5f9;
@@ -226,6 +201,16 @@
     #212225 98.48%
   );
 
+  --color-sidebar-background-100: var(
+    --color-background-100
+  ); /* primary sidebar bg */
+  --color-sidebar-background-90: var(
+    --color-background-90
+  ); /* secondary sidebar bg */
+  --color-sidebar-background-80: var(
+    --color-background-80
+  ); /* tertiary sidebar bg */
+
   --color-onboarding-text-100: 237, 238, 240;
   --color-onboarding-text-200: 176, 180, 187;
   --color-onboarding-text-300: 118, 123, 132;
@@ -250,11 +235,26 @@
   --font-mono: var(--font-geist-mono);
 
   --color-custom-primary: rgb(var(--color-primary-100));
+  --color-custom-primary-100: rgb(var(--color-primary-100));
 
   --color-custom-text-100: rgb(var(--color-text-100));
+  --color-custom-text-200: rgb(var(--color-text-200));
+  --color-custom-text-300: rgb(var(--color-text-300));
   --color-custom-text-400: rgb(var(--color-text-400));
 
-  --color-custom-background-90: rgb(var(--color-custom-background-90));
+  --color-custom-sidebar-text-200: rgb(var(--color-sidebar-text-200));
+
+  --color-custom-sidebar-border-100: rgb(var(--color-sidebar-border-100));
+  --color-custom-sidebar-border-200: rgb(var(--color-sidebar-border-200));
+  --color-custom-sidebar-border-300: rgb(var(--color-sidebar-border-300));
+
+  --color-custom-sidebar-background-80: rgb(var(--color-sidebar-background-80));
+  --color-custom-sidebar-background-100: rgb(
+    var(--color-sidebar-background-100)
+  );
+
+  --color-custom-background-90: rgb(var(--color-background-90));
+  --color-custom-background-100: rgb(var(--color-background-100));
 
   --color-custom-border-100: rgb(var(--color-border-100));
   --color-custom-border-200: rgb(var(--color-border-200));
@@ -292,6 +292,12 @@
   }
 }
 
+@media (min-width: 768px) {
+  :root {
+    --spacing-page-x: 1.35rem;
+  }
+}
+
 @utility bg-brand-gradient {
   @apply bg-gradient-to-b;
   --tw-gradient-from: var(--brand-grad-from);
@@ -301,9 +307,6 @@
 }
 
 /* * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
   font-variant-ligatures: none;

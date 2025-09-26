@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3003 --turbopack",
+    "dev": "next dev --port 3001 --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
     "clean": "rm -rf .turbo && rm -rf .next && rm -rf node_modules && rm -rf dist"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.8",
     "@heroui/react": "^2.8.4",
     "@syncturtle/constants": "workspace:*",
     "@syncturtle/types": "workspace:*",

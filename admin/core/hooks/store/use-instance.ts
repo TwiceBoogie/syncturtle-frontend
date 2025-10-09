@@ -13,10 +13,8 @@ export const useInstance = () => {
     context.instance.getServerSnapshot
   );
   return {
-    instance: snapshot.instance,
-    config: snapshot.config,
-    isLoading: snapshot.isLoading,
-    error: snapshot.error,
+    ...snapshot,
     fetchInstanceInfo: context.instance.fetchInstanceInfo,
+    fetchInstanceAdmins: context.instance.fetchInstanceAdmins,
   };
 };

@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "@/helpers/common.helper";
 import { APIService } from "./api.service";
-import { IInstanceInfo } from "@syncturtle/types";
+import { IInstanceAdmin, IInstanceInfo } from "@syncturtle/types";
 
 export class InstanceService extends APIService {
   constructor() {
@@ -8,8 +8,16 @@ export class InstanceService extends APIService {
   }
 
   async info(): Promise<IInstanceInfo> {
-    return this.get("/ui/v1/instance", { validateStatus: null })
+    return this.get("/api/v1/instances", { validateStatus: null })
       .then((response) => response.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  }
+
+  async admins(): Promise<IInstanceAdmin[]> {
+    return this.get("/api/v1/instances/admins")
+      .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
       });

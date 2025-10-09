@@ -3,8 +3,18 @@
 import { AdminHeader } from "@/components/auth-header";
 import { NewUserPopup } from "@/components/new-user-popup";
 import { AdminSidebar } from "@/components/sidebar";
+import { useUser } from "@/hooks/store";
+import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const { isUserLoggedIn } = useUser();
+
+  if (!isUserLoggedIn) {
+    router.push("/");
+  }
+
+  console.log(isUserLoggedIn);
   return (
     <div className="flex relative size-full overflow-hidden bg-custom-background-90 rounded-lg transition-all ease-in-out duration-300">
       <div className="size-full p-2 flex-grow transition-all ease-in-out duration-300 overflow-hidden">

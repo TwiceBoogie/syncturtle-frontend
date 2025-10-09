@@ -54,7 +54,7 @@ export class UserStore implements IUserStore {
   public subscribe = (cb: Listener): Unsub => this.emitter.subscribe(cb);
   public getSnapshot = (): TSnapshot => this._snap;
   public getServerSnapshot = (): TSnapshot => this._snap;
-  public fetchCurrentUser = async (): Promise<IUser | undefined> => {
+  public fetchCurrentUser = async (): Promise<IUser> => {
     this.set({ isLoading: true, error: undefined });
     try {
       const user = await this.userService.currentUser();

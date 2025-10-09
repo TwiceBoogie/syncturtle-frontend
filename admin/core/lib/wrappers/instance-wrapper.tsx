@@ -1,3 +1,5 @@
+"use client";
+
 import { FC, ReactNode } from "react";
 import { InstanceFailureView } from "@/components/instance/instance-fail";
 import { InstanceLoading } from "@/components/instance/loading";
@@ -43,7 +45,7 @@ export const InstanceWrapper: FC<IInstanceWrapper> = (props) => {
       </DefaultLayout>
     );
   }
-
+  // console.log(instance);
   if (instance && !instance.isSetupDone) {
     return (
       <DefaultLayout>

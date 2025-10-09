@@ -6,40 +6,13 @@ import { SITE_TITLE, SITE_DESCRIPTION, SITE_KEYWORDS } from "@syncturtle/constan
 import "@/styles/globals.css";
 import { AppProvider } from "./provider";
 import { cn } from "@syncturtle/utils";
-import { IInstanceInfo } from "@syncturtle/types";
+import { fetchInstanceInfo } from "@/lib/server";
 
 export const metadata: Metadata = {
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
   metadataBase: new URL("https://syncturtle.com"),
   keywords: SITE_KEYWORDS,
-};
-
-type TError = {
-  status: string;
-  message: string;
-};
-
-export const fetchInstanceInfo = async (): Promise<IInstanceInfo | TError> => {
-  try {
-    const res = await fetch(`${INTERNAL_API_BASE_URL}/api/v1/instances`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error("Not 200");
-    }
-
-    return data;
-  } catch (error) {
-    return {
-      status: "error",
-      message: "Failed to fetch isntance info",
-    };
-  }
 };
 
 export default async function RootLayout({

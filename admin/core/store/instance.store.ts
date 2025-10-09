@@ -1,5 +1,5 @@
 import { InstanceService } from "@/services/instance.service";
-import { IInstance, IInstanceConfig, Unsub, IInstanceInfo } from "@syncturtle/types";
+import { IInstance, IInstanceConfig, Unsub, IInstanceInfo, IInstanceAdmin } from "@syncturtle/types";
 import { Emitter } from "@syncturtle/utils";
 
 export const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -18,6 +18,7 @@ type TError = {
 type TSnapshot = {
   instance: IInstance | undefined;
   config: IInstanceConfig | undefined;
+  instanceAdmins: IInstanceAdmin[] | undefined;
   isLoading: boolean;
   error: TError | undefined;
 };
@@ -27,19 +28,20 @@ export interface IInstanceStore {
   getSnapshot(): TSnapshot;
   getServerSnapshot(): TSnapshot;
   hydrate: (data: IInstanceInfo) => void;
-  fetchInstanceInfo: () => Promise<IInstanceInfo>;
+  fetchInstanceInfo: () => Promise<IInstanceInfo | undefined>;
+  fetchInstanceAdmins: () => Promise<IInstanceAdmin[] | undefined>;
 }
 
 const initial: TSnapshot = {
   instance: undefined,
   config: undefined,
+  instanceAdmins: undefined,
   isLoading: false,
   error: undefined,
 };
 
 export class InstanceStore implements IInstanceStore {
   private _snap: TSnapshot = initial;
-  private inflight: Promise<IInstanceInfo> | null = null;
   private emitter: Emitter;
   private instanceService: InstanceService;
 
@@ -66,45 +68,40 @@ export class InstanceStore implements IInstanceStore {
   public getSnapshot = (): TSnapshot => this._snap;
   public getServerSnapshot = (): TSnapshot => this._snap;
 
-  public fetchInstanceInfo = () => {
-    // if request already in flight, return the same promise to dedupe
-    if (this.inflight) return this.inflight;
+  public fetchInstanceInfo = async () => {
+    try {
+      this.set({ isLoading: true, error: undefined });
+      const instanceInfo = await this.instanceService.info();
+      // console.log(instanceInfo);
+      this.set({
+        instance: instanceInfo.instance,
+        config: instanceInfo.config,
+        isLoading: false,
+      });
+      return instanceInfo;
+    } catch (error) {
+      this.set({
+        isLoading: false,
+        error: {
+          status: "error",
+          message: "Failed to fetch isntance info",
+        },
+      });
+      throw error;
+    }
+  };
 
-    // flip loading on and clear previous errors
-    this.set({ isLoading: true, error: undefined });
+  public fetchInstanceAdmins = async (): Promise<IInstanceAdmin[]> => {
+    try {
+      const instanceAdmins = await this.instanceService.admins();
 
-    // create and store the inflight promise so callers can await it
-    this.inflight = (async () => {
-      try {
-        // make it take at least DEBUG_MIN_DELAY_MS (even if API is fast)
-        // const [instanceInfo] = await Promise.all([
-        //   this.instanceService.info(),
-        //   DEBUG_MIN_DELAY_MS > 0 ? sleep(DEBUG_MIN_DELAY_MS) : Promise.resolve(),
-        // ]);
-        const instanceInfo = await this.instanceService.info();
-        // console.log(instanceInfo);
-        this.set({
-          instance: instanceInfo.instance,
-          config: instanceInfo.config,
-          isLoading: false,
-        });
-        return instanceInfo;
-      } catch (error) {
-        this.set({
-          isLoading: false,
-          error: {
-            status: "error",
-            message: "Failed to fetch isntance info",
-          },
-        });
-        throw error;
-      } finally {
-        // allow future requests again
-        this.inflight = null;
+      if (instanceAdmins) {
+        this.set({ instanceAdmins: instanceAdmins });
       }
-    })();
-
-    return this.inflight;
+      return instanceAdmins;
+    } catch (error) {
+      throw error;
+    }
   };
 
   private set(patch: Partial<TSnapshot>) {

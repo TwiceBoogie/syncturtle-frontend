@@ -1,9 +1,12 @@
 "use client";
 
+import { API_BASE_URL } from "@/helpers/common.helper";
 import DefaultLayout from "@/layouts/default-layout";
+import { AuthService } from "@/services/auth.service";
 import { Button, Input } from "@heroui/react";
 import { Eye, EyeOff } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type TFormData = {
   email: string;
@@ -15,12 +18,26 @@ const initialData: TFormData = {
   password: "",
 };
 
+const authService = new AuthService();
+
 // login
 export default function Home() {
+  const router = useRouter();
   // state
+  const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<TFormData>(initialData);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      if (csrfToken === undefined) {
+        const { csrfToken: token } = await authService.requestCSRFToken();
+        setCsrfToken(token);
+      }
+    };
+    fetchCsrfToken();
+  }, [csrfToken]);
 
   const handleFormChange = (key: keyof TFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -30,6 +47,34 @@ export default function Home() {
     () => (!isSubmitting && formData.email && formData.password ? false : true),
     [formData.email, formData.password, isSubmitting]
   );
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      setIsSubmitting(true);
+      const url = `${API_BASE_URL}/api/v1/auth/admin/login`;
+      console.log("POST ->", window.location.origin + url);
+      const res = await fetch(`${API_BASE_URL}/api/v1/auth/admin/login`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...(csrfToken ? { "X-CSRF-TOKEN": csrfToken } : {}),
+        },
+        body: JSON.stringify(formData),
+      });
+      console.log(res.status);
+      if (!res.ok) {
+        throw new Error(`Http ${res.status}`);
+      }
+      console.log("should push");
+      router.push("/general");
+    } catch (error) {
+      setIsSubmitting(false);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <DefaultLayout>
@@ -43,7 +88,7 @@ export default function Home() {
               Configure instance-wide settings to secure your instance
             </p>
           </div>
-          <form className="space-y-10">
+          <form onSubmit={handleSubmit} className="space-y-10">
             <Input
               id="email"
               type="email"
@@ -95,7 +140,13 @@ export default function Home() {
                 </button>
               }
             />
-            <Button color="primary" className="rounded w-full" isLoading={isSubmitting} isDisabled={isButtonDisabled}>
+            <Button
+              type="submit"
+              color="primary"
+              className="rounded w-full"
+              isLoading={isSubmitting}
+              isDisabled={isButtonDisabled}
+            >
               Sign-in
             </Button>
           </form>

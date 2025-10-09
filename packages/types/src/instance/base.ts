@@ -51,3 +51,13 @@ export interface IInstanceConfig {
   // intercom_app_id: string | undefined;
   // instance_changelog_url?: string;
 }
+
+export interface IInstanceAdmin {
+  id: string;
+  instance: string;
+  user: string;
+  role: number;
+  isVerified: boolean;
+  updatedAt: string;
+  createdAt: string;
+}

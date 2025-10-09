@@ -4,12 +4,12 @@ import { IUser, TUserProfile } from "@syncturtle/types";
 
 export class UserService extends APIService {
   constructor() {
-    super(`${API_BASE_URL}/ui/v1/user`);
+    super(API_BASE_URL);
   }
 
   async currentUser(): Promise<IUser> {
     // Using validateStatus: null to bypass interceptors for unauthorized errors.
-    return this.get("/api/users/me/", { validateStatus: null })
+    return this.get("/api/v1/users/me/", { validateStatus: null })
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response;
@@ -17,7 +17,7 @@ export class UserService extends APIService {
   }
 
   async getCurrentUserProfile(): Promise<TUserProfile> {
-    return this.get("/api/users/me/profile/")
+    return this.get("/api/v1/users/me/profile/")
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response;

@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, FormEvent, useEffect, useMemo, useState } from "react";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
 import { Eye, EyeOff } from "lucide-react";
@@ -7,6 +7,7 @@ import { PasswordStrenthIndicator } from "@syncturtle/ui";
 import { Button } from "@heroui/react";
 import { AuthService } from "@/services/auth.service";
 import { API_BASE_URL } from "@/helpers/common.helper";
+import { useRouter } from "next/navigation";
 
 const authService = new AuthService();
 
@@ -33,6 +34,7 @@ type TShowPassword = {
 };
 
 export const InstanceSetupForm: FC = (props) => {
+  const router = useRouter();
   const {} = props;
   // state
   const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
@@ -61,6 +63,33 @@ export const InstanceSetupForm: FC = (props) => {
 
   const handleFormChange = (key: keyof TFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      setIsSubmitting(true);
+      const url = `${API_BASE_URL}/api/v1/instances/admins/sign-up`;
+      console.log("POST →", window.location.origin + url);
+      const res = await fetch(`${API_BASE_URL}/api/v1/instances/admins/sign-up`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...(csrfToken ? { "X-CSRF-TOKEN": csrfToken } : {}),
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) {
+        throw new Error(`Http ${res.status}`);
+      }
+      console.log(res.headers.get("Location"));
+      router.push("/general");
+    } catch (error) {
+      setIsSubmitting(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isButtonDisabled = useMemo(
@@ -99,14 +128,7 @@ export const InstanceSetupForm: FC = (props) => {
           </p>
         </div>
 
-        <form
-          className="flex flex-col gap-2"
-          method="POST"
-          action={`${API_BASE_URL}/ui/v1/instance/admins/sign-up`}
-          onSubmit={() => setIsSubmitting(true)}
-          onError={() => setIsSubmitting(false)}
-        >
-          <input type="hidden" name="csrf_token" value={csrfToken} />
+        <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <Input
               id="firstName"

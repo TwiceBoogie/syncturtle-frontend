@@ -27,5 +27,13 @@ export const AuthenticationWrapper: FC<TAuthenticationWrapper> = (props) => {
     shouldRetryOnError: false,
   });
 
+  const isUserOnboarded =
+    currentUserProfile.isOnboarded ||
+    (currentUserProfile.onboardingStep.profileComplete &&
+      currentUserProfile.onboardingStep.workspaceCreate &&
+      currentUserProfile.onboardingStep.workspaceInvite &&
+      currentUserProfile.onboardingStep.workspaceJoin) ||
+    false;
+
   return <>{children}</>;
 };

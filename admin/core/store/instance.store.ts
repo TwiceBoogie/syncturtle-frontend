@@ -1,5 +1,15 @@
 import { InstanceService } from "@/services/instance.service";
-import { IInstance, IInstanceConfig, Unsub, IInstanceInfo, IInstanceAdmin } from "@syncturtle/types";
+import {
+  IInstance,
+  IInstanceConfig,
+  IInstanceAdmin,
+  IInstanceConfiguration,
+  TFormattedInstanceConfiguration,
+  Unsub,
+  IInstanceInfo,
+  TInstanceUpdate,
+} from "@syncturtle/types";
+
 import { Emitter } from "@syncturtle/utils";
 
 export const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -19,6 +29,8 @@ type TSnapshot = {
   instance: IInstance | undefined;
   config: IInstanceConfig | undefined;
   instanceAdmins: IInstanceAdmin[] | undefined;
+  instanceConfigurations: IInstanceConfiguration[] | undefined;
+  formattedConfig: TFormattedInstanceConfiguration | undefined;
   isLoading: boolean;
   error: TError | undefined;
 };
@@ -29,13 +41,21 @@ export interface IInstanceStore {
   getServerSnapshot(): TSnapshot;
   hydrate: (data: IInstanceInfo) => void;
   fetchInstanceInfo: () => Promise<IInstanceInfo | undefined>;
+  updateInstanceInfo: (data: TInstanceUpdate, csrfToken: string) => Promise<IInstance | undefined>;
   fetchInstanceAdmins: () => Promise<IInstanceAdmin[] | undefined>;
+  fetchInstanceConfigurations: () => Promise<IInstanceConfiguration[]>;
+  updateInstanceConfigurations: (
+    data: Partial<TFormattedInstanceConfiguration>,
+    csrfToken: string
+  ) => Promise<IInstanceConfiguration[]>;
 }
 
 const initial: TSnapshot = {
   instance: undefined,
   config: undefined,
   instanceAdmins: undefined,
+  instanceConfigurations: undefined,
+  formattedConfig: undefined,
   isLoading: false,
   error: undefined,
 };
@@ -91,6 +111,19 @@ export class InstanceStore implements IInstanceStore {
     }
   };
 
+  public updateInstanceInfo = async (data: TInstanceUpdate, csrfToken: string) => {
+    try {
+      const instanceResponse = await this.instanceService.update(data, csrfToken);
+      if (instanceResponse) {
+        this.set({ instance: instanceResponse });
+      }
+      return instanceResponse;
+    } catch (error) {
+      console.error("Error updating instance info");
+      throw error;
+    }
+  };
+
   public fetchInstanceAdmins = async (): Promise<IInstanceAdmin[]> => {
     try {
       const instanceAdmins = await this.instanceService.admins();
@@ -104,8 +137,52 @@ export class InstanceStore implements IInstanceStore {
     }
   };
 
+  public fetchInstanceConfigurations = async (): Promise<IInstanceConfiguration[]> => {
+    try {
+      const instanceConfigurations = await this.instanceService.configurations();
+      if (instanceConfigurations) {
+        this.set({ instanceConfigurations: instanceConfigurations, isLoading: false });
+      }
+      return instanceConfigurations;
+    } catch (error) {
+      console.error("Error fetching instance configurations");
+      throw error;
+    }
+  };
+
+  public updateInstanceConfigurations = async (data: Partial<TFormattedInstanceConfiguration>, csrfToken: string) => {
+    try {
+      const res = await this.instanceService.updateConfigurations(data, csrfToken);
+
+      const current = this._snap.instanceConfigurations ?? [];
+      const byKey = new Map(res.map((r) => [r.key, r]));
+
+      const next = current.map((cfg) => byKey.get(cfg.key) ?? cfg);
+
+      this.set({ instanceConfigurations: next });
+      return res;
+    } catch (error) {
+      console.error("Error updating instance configurations");
+      throw error;
+    }
+  };
+
+  private toFormatted(configs?: IInstanceConfiguration[] | null): TFormattedInstanceConfiguration | undefined {
+    if (!configs) return undefined;
+    return configs.reduce((acc, c) => {
+      acc[c.key] = c.value;
+      return acc;
+    }, {} as TFormattedInstanceConfiguration);
+  }
+
   private set(patch: Partial<TSnapshot>) {
-    this._snap = { ...this._snap, ...patch };
+    const next = { ...this._snap, ...patch } as TSnapshot;
+
+    if (patch.hasOwnProperty("instanceConfigurations")) {
+      next.formattedConfig = this.toFormatted(next.instanceConfigurations);
+    }
+
+    this._snap = next;
     this.emitter.emit();
   }
 }

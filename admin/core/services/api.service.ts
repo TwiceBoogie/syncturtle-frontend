@@ -1,5 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 
+type LogFn = (msg: string, ...args: any[]) => void;
+
 /**
  * Abstract base class for making HTTP requests using axios
  * @abstract

@@ -8,11 +8,12 @@ export type TOnboardingSteps = {
 };
 
 export interface IUserLite {
-  displayName: string;
+  id: string;
   email?: string;
   firstName: string;
-  id: string;
   lastName: string;
+  displayName: string;
+  dateJoined: string;
 }
 export interface IUser extends IUserLite {
   dateJoined: string;

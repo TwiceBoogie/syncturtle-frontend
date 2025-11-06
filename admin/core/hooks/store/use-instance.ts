@@ -15,6 +15,9 @@ export const useInstance = () => {
   return {
     ...snapshot,
     fetchInstanceInfo: context.instance.fetchInstanceInfo,
+    updateInstanceInfo: context.instance.updateInstanceInfo,
     fetchInstanceAdmins: context.instance.fetchInstanceAdmins,
+    fetchInstanceConfigurations: context.instance.fetchInstanceConfigurations,
+    updateInstanceConfigurations: context.instance.updateInstanceConfigurations,
   };
 };

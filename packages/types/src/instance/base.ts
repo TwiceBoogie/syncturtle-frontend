@@ -1,3 +1,8 @@
+import { IUserLite } from "../users";
+import { TInstanceAuthenticationKeys } from "./auth";
+import { TInstanceEmailConfigurationKeys } from "./email";
+import { TInstanceWorkspaceConfigurationKeys } from "./workspace";
+
 export interface IInstanceInfo {
   instance: IInstance;
   config: IInstanceConfig;
@@ -27,6 +32,8 @@ export interface IInstance {
   // workspaces_exist: boolean;
 }
 
+export type TInstanceUpdate = Partial<Pick<IInstance, "instanceName" | "namespace">>;
+
 export interface IInstanceConfig {
   enableSignup: boolean;
   // is_workspace_creation_disabled: boolean;
@@ -55,9 +62,28 @@ export interface IInstanceConfig {
 export interface IInstanceAdmin {
   id: string;
   instance: string;
-  user: string;
+  user: IUserLite;
   role: number;
   isVerified: boolean;
   updatedAt: string;
   createdAt: string;
 }
+
+export type TInstanceConfigurationKeys =
+  | TInstanceEmailConfigurationKeys
+  | TInstanceAuthenticationKeys
+  | TInstanceWorkspaceConfigurationKeys;
+
+export interface IInstanceConfiguration {
+  id: string;
+  key: TInstanceConfigurationKeys;
+  value: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  updatedBy: string;
+}
+
+export type TFormattedInstanceConfiguration = {
+  [key in TInstanceConfigurationKeys]: string;
+};

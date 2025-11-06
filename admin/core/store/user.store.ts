@@ -5,13 +5,13 @@ import { CoreRootStore } from "./root.store";
 
 type TSnapshot = {
   isLoading: boolean;
-  isUserLoggedIn: boolean;
+  isUserLoggedIn: boolean | undefined;
   currentUser: IUser | undefined;
 };
 
 const initial: TSnapshot = {
   isLoading: false,
-  isUserLoggedIn: false,
+  isUserLoggedIn: undefined,
   currentUser: undefined,
 };
 
@@ -37,18 +37,24 @@ export class UserStore implements IUserStore {
   }
 
   public subscribe = (cb: Listener): Unsub => this.emitter.subscribe(cb);
+
   public getSnapshot = (): TSnapshot => this._snap;
+
   public getServerSnapshot = (): TSnapshot => this._snap;
+
   public hydrate = (data: IUser): void => {};
+
   public fetchCurrentUser = async (): Promise<IUser> => {
-    this.set({ isLoading: true, isUserLoggedIn: false });
+    this.set({ isLoading: true });
     try {
       const currentUser = await this.userService.currentUser();
-      console.log(`CurrentUser ${currentUser}`);
+
       if (currentUser) {
         await this.store.instance.fetchInstanceAdmins();
+        this.set({ isLoading: false, isUserLoggedIn: true, currentUser: currentUser });
+      } else {
+        this.set({ isLoading: false, isUserLoggedIn: false, currentUser: undefined });
       }
-      this.set({ isLoading: false, isUserLoggedIn: true, currentUser: currentUser });
       return currentUser;
     } catch (error) {
       console.log("error has occurred: ", error);
@@ -56,6 +62,7 @@ export class UserStore implements IUserStore {
       throw error;
     }
   };
+
   private set(patch: Partial<TSnapshot>) {
     this._snap = { ...this._snap, ...patch };
     this.emitter.emit();

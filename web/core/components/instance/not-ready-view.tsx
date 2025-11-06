@@ -2,11 +2,11 @@
 
 import { FC } from "react";
 import Image from "next/image";
-import PlaneBackgroundPatternDark from "@/public/auth/background-pattern-dark.svg";
-import PlaneBackgroundPattern from "@/public/auth/background-pattern.svg";
-import BlackHorizontalLogo from "@/public/plane-logos/black-horizontal-with-blue-logo.png";
-import WhiteHorizontalLogo from "@/public/plane-logos/white-horizontal-with-blue-logo.png";
-import PlaneTakeOffImage from "@/public/plane-takeoff.png";
+import PlaneBackgroundPatternDark from "@/public/auth/syncturtle-bg-dark.jpg";
+import PlaneBackgroundPattern from "@/public/auth/syncturtle-bg-light.jpg";
+import BlackHorizontalLogo from "@/public/syncturtle-logos/black-horizontal-logo-with-text.png";
+import WhiteHorizontalLogo from "@/public/syncturtle-logos/white-horizontal-logo-with-text.png";
+
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { GOD_MODE_URL } from "@/helpers/common.helper";
@@ -38,7 +38,7 @@ export const InstanceNotReady: FC = () => {
                 <h1 className="text-3xl font-bold pb-3 text-heading-text-500">
                   Welcome aboard Sync<span className="text-green-400">Turtle</span>!
                 </h1>
-                <Image src={PlaneTakeOffImage} alt="Plane Logo" priority />
+                {/* image takeoff */}
                 <p className="font-medium text-base text-onboarding-text-100">
                   Get started by setting up your instance and workspace
                 </p>

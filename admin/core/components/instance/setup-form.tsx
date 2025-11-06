@@ -1,13 +1,16 @@
 import { FC, FormEvent, useEffect, useMemo, useState } from "react";
-import { Form } from "@heroui/form";
+// heroui
 import { Input } from "@heroui/input";
+import { Button } from "@heroui/button";
 import { Eye, EyeOff } from "lucide-react";
+// swr
+import { mutate } from "swr";
 // components
 import { PasswordStrenthIndicator } from "@syncturtle/ui";
-import { Button } from "@heroui/react";
+// service
 import { AuthService } from "@/services/auth.service";
+// constants
 import { API_BASE_URL } from "@/helpers/common.helper";
-import { useRouter } from "next/navigation";
 
 const authService = new AuthService();
 
@@ -34,7 +37,6 @@ type TShowPassword = {
 };
 
 export const InstanceSetupForm: FC = (props) => {
-  const router = useRouter();
   const {} = props;
   // state
   const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
@@ -83,8 +85,9 @@ export const InstanceSetupForm: FC = (props) => {
       if (!res.ok) {
         throw new Error(`Http ${res.status}`);
       }
-      console.log(res.headers.get("Location"));
-      router.push("/general");
+
+      // no need to push user since these will be called
+      await Promise.all([mutate("CURRENT_USER"), mutate("INSTANCE_ADMINS")]);
     } catch (error) {
       setIsSubmitting(false);
     } finally {

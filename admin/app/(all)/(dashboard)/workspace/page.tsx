@@ -1,9 +1,18 @@
 "use client";
 
-import { useInstance, useWorkspace } from "@/hooks/store";
-import { Switch } from "@heroui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
+// heroui
+import { Spinner } from "@heroui/spinner";
+import { Switch } from "@heroui/switch";
+import { addToast } from "@heroui/toast";
+import { Button } from "@heroui/button";
+// store hooks
+import { useInstance, useWorkspace } from "@/hooks/store";
+// types
+import { TInstanceConfigurationKeys } from "@syncturtle/types";
+import { LoaderIcon } from "lucide-react";
+import { Link } from "@heroui/link";
 
 export default function Workspace() {
   // states
@@ -23,6 +32,37 @@ export default function Workspace() {
 
   useSWR("INSTANCE_CONFIGURATIONS", () => fetchInstanceConfigurations());
   useSWR("INSTANCE_WORKSPACES", () => fetchWorkspaces());
+
+  const updateConfig = async (key: TInstanceConfigurationKeys, value: string) => {
+    setIsSubmitting(true);
+    const payload: Partial<typeof formattedConfig> = {
+      [key]: value,
+    };
+
+    const promise = updateInstanceConfigurations(payload);
+
+    addToast({
+      title: "Updating workspace settings",
+      description: "Please wait while we save your changes.",
+      color: "primary",
+      severity: "primary",
+      promise,
+      loadingComponent: <Spinner size="sm" />,
+    });
+
+    try {
+      await promise;
+    } catch (error) {
+      addToast({
+        title: "Failed to update settings",
+        description: (error as any)?.message ?? "Something went wrong",
+        color: "danger",
+        severity: "danger",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <div className="relative container mx-auto w-full h-full p-4 py-4 space-y-6 flex flex-col">
       <div className="border-b border-custom-border-100 mx-4 py-4 space-y-1 flex-shrink-0">
@@ -33,20 +73,70 @@ export default function Workspace() {
       </div>
       <div className="flex-grow overflow-hidden px-4">
         <div className="space-y-3">
-          <div>
-            <div className="flex items-center gap-4">
-              <div className="grow">
-                <div className="text-lg font-medium pb-1">Prevent anyone else from creating a workspace.</div>
-                <div className="font-normal leading-5 text-custom-text-300 text-xs">
-                  Toggling this on will let only you create workspaces. You will have to invite users to new workspaces.
+          {formattedConfig ? (
+            <div className="w-full flex items-center gap-14 rounded">
+              <div className="flex grow items-center gap-4">
+                <div className="grow">
+                  <div className="text-lg font-medium pb-1">Prevent anyone else from creating a workspace.</div>
+                  <div className="font-normal leading-5 text-custom-text-300 text-xs">
+                    Toggling this on will let only you create workspaces. You will have to invite users to new
+                    workspaces.
+                  </div>
+                </div>
+                <Switch
+                  isSelected={Boolean(parseInt(disableWorkspaceCreation))}
+                  aria-label="Disable workspace switch"
+                  size="sm"
+                  onValueChange={() => {
+                    if (Boolean(parseInt(disableWorkspaceCreation)) === true) {
+                      updateConfig("DISABLE_WORKSPACE_CREATION", "0");
+                    } else {
+                      updateConfig("DISABLE_WORKSPACE_CREATION", "1");
+                    }
+                  }}
+                  disabled={isSubmitting}
+                />
+              </div>
+            </div>
+          ) : (
+            <Spinner label="Loading..." />
+          )}
+          {workspaceLoader !== "init-loader" ? (
+            <>
+              <div className="pt-6 flex items-center justify-between gap-2">
+                <div className="flex flex-col items-start gap-x-2">
+                  <div className="flex items-center gap-2 text-lg font-medium">
+                    All workspaces on this instance{" "}
+                    <span className="text-custom-text-300">• {workspaceIds.length}</span>
+                    {workspaceLoader && ["mutation", "pagination"].includes(workspaceLoader) && (
+                      <LoaderIcon className="w-4 h-4 animate-spin" />
+                    )}
+                  </div>
+                  <div className="font-normal leading-5 text-custom-text-300 text-xs">
+                    You can't yet delete workspaces and you can only go to the workspace if you are an Admin or a
+                    Member.
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Link href={`/workspace/create`} size="sm">
+                    Create workspace
+                  </Link>
                 </div>
               </div>
-              <Switch defaultSelected aria-label="Automatic updates" size="sm" />
-            </div>
-          </div>
-          <div>
-            <div></div>
-          </div>
+              <div>
+                {workspaceIds.map((workspaceId) => (
+                  <div>{workspaceId}</div>
+                ))}
+              </div>
+              {hasNextPage && (
+                <Button color="primary" onPress={fetchNextWorkspaces} isDisabled={workspaceLoader === "pagination"}>
+                  Load more
+                </Button>
+              )}
+            </>
+          ) : (
+            <Spinner label="Loading..." />
+          )}
         </div>
       </div>
     </div>

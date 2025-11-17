@@ -1,24 +1,17 @@
-import { useTheme } from "@/hooks/store";
-import { useTheme as useNextTheme } from "next-themes";
-// import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/react";
-import { cn } from "@syncturtle/utils";
-import { LogOut, Palette, UserCog2 } from "lucide-react";
 import { FC } from "react";
+import { useTheme as useNextTheme } from "next-themes";
+// heroui
+import { addToast } from "@heroui/toast";
+import { LogOut, Palette, UserCog2 } from "lucide-react";
+// store hooks
+import { useTheme, useUser } from "@/hooks/store";
 
-import { API_BASE_URL } from "@/helpers/common.helper";
-import {
-  Button,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownSection,
-  DropdownTrigger,
-  MenuItem,
-} from "@heroui/react";
-import { MenuItems } from "@headlessui/react";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from "@heroui/react";
 
 export const AdminSidebarDropdown: FC = () => {
+  // store hooks
   const { isSidebarCollapsed } = useTheme();
+  const { currentUser, signOut } = useUser();
   const { resolvedTheme, setTheme } = useNextTheme();
 
   const handleThemeSwitch = () => {
@@ -26,53 +19,69 @@ export const AdminSidebarDropdown: FC = () => {
     setTheme(newTheme);
   };
 
-  const getSidebarMenuItems = () => (
-    <MenuItems
-      anchor="bottom start"
-      transition
-      className={cn(
-        "absolute left-0 z-20 mt-1.5 flex w-52 flex-col",
-        "divide-y divide-custom-sidebar-border-100",
-        "rounded-md border border-custom-sidebar-border-200",
-        "bg-custom-background-100 px-1 py-2 text-xs focus:outline-none",
-        "shadow-lg transition ease-out",
-        "data-[closed]:opacity-0 data-[closed]:scale-95",
-        "data-[enter]:duration-100 data-[leave]:duration-75",
-        {
-          "left-4": isSidebarCollapsed,
-        }
-      )}
-    >
-      <div className="flex flex-col gap-2.5 pb-2">
-        <span className="px-2 text-custom-sidebar-text-200">name@company.com</span>
-      </div>
-      <div className="py-2">
-        <MenuItem key={"theme"}>
-          <button
-            type="button"
-            className="flex w-full items-center gap-2 rounded px-2 py-1 hover:bg-custom-sidebar-background-80"
-            onClick={handleThemeSwitch}
-          >
-            <Palette className="h-4 w-4 stroke-[1.5]" />
-            Switch to {resolvedTheme === "dark" ? "light" : "dark"} mode
-          </button>
-        </MenuItem>
-      </div>
-      <div className="py-2">
-        <form method="POST" action={`${API_BASE_URL}/api/instances/admins/sign-out/`}>
-          <input type="hidden" name="csrfmiddlewaretoken" />
-          <MenuItem
-            as="button"
-            key={"submit"}
-            className="flex w-full items-center gap-2 rounded px-2 py-1 hover:bg-custom-sidebar-background-80"
-          >
-            <LogOut className="h-4 w-4 stroke-[1.5]" />
-            Sign out
-          </MenuItem>
-        </form>
-      </div>
-    </MenuItems>
-  );
+  const handleSignout = async () => {
+    try {
+      await signOut();
+      addToast({
+        title: "Successfully signed-out",
+        color: "success",
+      });
+    } catch (error) {
+      addToast({
+        title: "Sign-out failed",
+        description: "An error has occurred. Please try again later.",
+        color: "danger",
+      });
+    }
+  };
+
+  // const getSidebarMenuItems = () => (
+  //   <MenuItems
+  //     anchor="bottom start"
+  //     transition
+  //     className={cn(
+  //       "absolute left-0 z-20 mt-1.5 flex w-52 flex-col",
+  //       "divide-y divide-custom-sidebar-border-100",
+  //       "rounded-md border border-custom-sidebar-border-200",
+  //       "bg-custom-background-100 px-1 py-2 text-xs focus:outline-none",
+  //       "shadow-lg transition ease-out",
+  //       "data-[closed]:opacity-0 data-[closed]:scale-95",
+  //       "data-[enter]:duration-100 data-[leave]:duration-75",
+  //       {
+  //         "left-4": isSidebarCollapsed,
+  //       }
+  //     )}
+  //   >
+  //     <div className="flex flex-col gap-2.5 pb-2">
+  //       <span className="px-2 text-custom-sidebar-text-200">name@company.com</span>
+  //     </div>
+  //     <div className="py-2">
+  //       <MenuItem key={"theme"}>
+  //         <button
+  //           type="button"
+  //           className="flex w-full items-center gap-2 rounded px-2 py-1 hover:bg-custom-sidebar-background-80"
+  //           onClick={handleThemeSwitch}
+  //         >
+  //           <Palette className="h-4 w-4 stroke-[1.5]" />
+  //           Switch to {resolvedTheme === "dark" ? "light" : "dark"} mode
+  //         </button>
+  //       </MenuItem>
+  //     </div>
+  //     <div className="py-2">
+  //       <form method="POST" action={`${API_BASE_URL}/api/instances/admins/sign-out/`}>
+  //         <input type="hidden" name="csrfmiddlewaretoken" />
+  //         <MenuItem
+  //           as="button"
+  //           key={"submit"}
+  //           className="flex w-full items-center gap-2 rounded px-2 py-1 hover:bg-custom-sidebar-background-80"
+  //         >
+  //           <LogOut className="h-4 w-4 stroke-[1.5]" />
+  //           Sign out
+  //         </MenuItem>
+  //       </form>
+  //     </div>
+  //   </MenuItems>
+  // );
   return (
     <div className="flex items-center gap-x-5 gap-y-2 border-b border-custom-sidebar-border-200 px-4 py-3.5">
       <div className="h-full w-full truncate">
@@ -116,7 +125,7 @@ export const AdminSidebarDropdown: FC = () => {
               }}
               topContent={
                 <div className="px-2 pt-2">
-                  <span className="block text-xs text-custom-sidebar-text-200">luna@snow.com</span>
+                  <span className="block text-xs text-custom-sidebar-text-200">{currentUser?.email}</span>
                 </div>
               }
             >
@@ -125,11 +134,17 @@ export const AdminSidebarDropdown: FC = () => {
                   key={"theme"}
                   startContent={<Palette className="h-4 w-4 stroke-[1.5]" />}
                   onPress={handleThemeSwitch}
+                  textValue="theme switch"
                 >
                   Switch to {resolvedTheme === "dark" ? "light" : "dark"} mode
                 </DropdownItem>
               </DropdownSection>
-              <DropdownItem key={"logout"} startContent={<LogOut className="h-4 w-4 stroke-[1.5]" />}>
+              <DropdownItem
+                key={"sign-out"}
+                startContent={<LogOut className="h-4 w-4 stroke-[1.5]" />}
+                onPress={handleSignout}
+                textValue="sign-out"
+              >
                 Sign out
               </DropdownItem>
             </DropdownMenu>
@@ -189,7 +204,7 @@ export const AdminSidebarDropdown: FC = () => {
             }}
             topContent={
               <div className="px-2 pt-2">
-                <span className="block text-xs text-custom-sidebar-text-200">luna@snow.com</span>
+                <span className="block text-xs text-custom-sidebar-text-200">{currentUser?.email}</span>
               </div>
             }
           >
@@ -198,11 +213,17 @@ export const AdminSidebarDropdown: FC = () => {
                 key={"theme"}
                 startContent={<Palette className="h-4 w-4 stroke-[1.5]" />}
                 onPress={handleThemeSwitch}
+                textValue="theme switch"
               >
                 Switch to {resolvedTheme === "dark" ? "light" : "dark"} mode
               </DropdownItem>
             </DropdownSection>
-            <DropdownItem key={"logout"} startContent={<LogOut className="h-4 w-4 stroke-[1.5]" />}>
+            <DropdownItem
+              key={"logout"}
+              startContent={<LogOut className="h-4 w-4 stroke-[1.5]" />}
+              textValue="sign-out"
+              onPress={handleSignout}
+            >
               Sign out
             </DropdownItem>
           </DropdownMenu>

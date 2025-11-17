@@ -12,5 +12,6 @@ export const useUser = () => {
   return {
     ...snapshot,
     fetchCurrentUser: context.user.fetchCurrentUser,
+    signOut: context.user.signOut,
   };
 };

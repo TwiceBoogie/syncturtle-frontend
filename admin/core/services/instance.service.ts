@@ -1,59 +1,67 @@
 import { API_BASE_URL } from "@/helpers/common.helper";
-import { APIService } from "./api.service";
 import {
+  IInstanceInfo,
+  TInstanceUpdate,
   IInstance,
   IInstanceAdmin,
   IInstanceConfiguration,
-  IInstanceInfo,
   TFormattedInstanceConfiguration,
-  TInstanceUpdate,
+  IApiErrorPayload,
 } from "@syncturtle/types";
+import { APIService2, HttpError } from "./api.service2";
 
-export class InstanceService extends APIService {
+export class InstanceService extends APIService2 {
   constructor() {
     super(API_BASE_URL);
   }
 
   async info(): Promise<IInstanceInfo> {
-    return this.get("/api/v1/instances", { validateStatus: null })
-      .then((response) => response.data)
-      .catch((error) => {
-        throw error?.response?.data;
-      });
+    try {
+      const response = await this.get<IInstanceInfo>("/api/v1/instances");
+      return response.data;
+    } catch (error) {
+      const err = error as HttpError<IApiErrorPayload>;
+      throw err.data ?? err;
+    }
   }
 
-  async update(data: TInstanceUpdate, csrfToken: string): Promise<IInstance> {
-    return this.patch("/api/v1/instances", data, { headers: { "X-CSRF-TOKEN": csrfToken } })
-      .then((response) => response?.data)
-      .catch((error) => {
-        throw error?.response?.data;
-      });
+  async update(data: TInstanceUpdate): Promise<IInstance> {
+    try {
+      const response = await this.patch<IInstance>("/api/v1/instances", data);
+      return response.data;
+    } catch (error) {
+      const err = error as HttpError<IApiErrorPayload>;
+      throw err.data ?? err;
+    }
   }
 
   async admins(): Promise<IInstanceAdmin[]> {
-    return this.get("/api/v1/instances/admins")
-      .then((response) => response?.data)
-      .catch((error) => {
-        throw error?.response?.data;
-      });
+    try {
+      const response = await this.get<IInstanceAdmin[]>("/api/v1/instances/admins");
+      return response.data;
+    } catch (error) {
+      const err = error as HttpError<IApiErrorPayload>;
+      throw err.data ?? err;
+    }
   }
 
   async configurations(): Promise<IInstanceConfiguration[]> {
-    return this.get("/api/v1/instances/configurations")
-      .then((response) => response.data)
-      .catch((error) => {
-        throw error?.response?.data;
-      });
+    try {
+      const response = await this.get<IInstanceConfiguration[]>("/api/v1/instances/configurations");
+      return response.data;
+    } catch (error) {
+      const err = error as HttpError<IApiErrorPayload>;
+      throw err.data ?? err;
+    }
   }
 
-  async updateConfigurations(
-    data: Partial<TFormattedInstanceConfiguration>,
-    csrfToken: string
-  ): Promise<IInstanceConfiguration[]> {
-    return this.patch("/api/v1/instances/configurations", data, { headers: { "X-CSRF-TOKEN": csrfToken } })
-      .then((response) => response?.data)
-      .catch((error) => {
-        throw error?.response?.data;
-      });
+  async updateConfigurations(data: Partial<TFormattedInstanceConfiguration>): Promise<IInstanceConfiguration[]> {
+    try {
+      const response = await this.patch<IInstanceConfiguration[]>("/api/v1/instances/configurations", data);
+      return response.data;
+    } catch (error) {
+      const err = error as HttpError<IApiErrorPayload>;
+      throw err.data ?? err;
+    }
   }
 }

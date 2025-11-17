@@ -1,9 +1,20 @@
 "use client";
 
 import { FC } from "react";
-import { Breadcrumbs, BreadcrumbItem } from "@heroui/react";
+import { Breadcrumbs, BreadcrumbItem } from "@heroui/breadcrumbs";
+import { Button } from "@heroui/button";
 import { usePathname } from "next/navigation";
-import { Cog } from "lucide-react";
+import { Cog, Menu } from "lucide-react";
+import { useTheme } from "@/hooks/store";
+
+export const HamburgerToggle: FC = () => {
+  const { isSidebarCollapsed, toggleSidebar } = useTheme();
+  return (
+    <Button size="sm" isIconOnly onPress={() => toggleSidebar(!isSidebarCollapsed)} className="md:hidden">
+      <Menu className="h-5 w-5" />
+    </Button>
+  );
+};
 
 export const AdminHeader: FC = () => {
   const pathName = usePathname();
@@ -52,6 +63,7 @@ export const AdminHeader: FC = () => {
   const breadCrumbItems = generateBreadCrumbItems();
   return (
     <div className="relative z-10 flex h-[3.25rem] w-full flex-shrink-0 flex-row items-center justify-between gap-x-2 gap-y-4 border-b border-custom-sidebar-border-200 bg-custom-sidebar-background-100 p-4">
+      <HamburgerToggle />
       {breadCrumbItems.length >= 0 && (
         <Breadcrumbs>
           <BreadcrumbItem href="/general" startContent={<Cog className="h-4 w-4" />}>

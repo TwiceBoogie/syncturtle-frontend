@@ -16,5 +16,6 @@ export const useWorkspace = () => {
     getWorkspaceById: context.workspace.getWorkspaceById,
     fetchWorkspaces: context.workspace.fetchWorkspaces,
     fetchNextWorkspaces: context.workspace.fetchNextWorkspaces,
+    createWorkspace: context.workspace.createWorkspace,
   };
 };

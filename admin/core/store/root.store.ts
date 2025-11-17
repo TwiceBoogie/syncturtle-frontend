@@ -20,4 +20,17 @@ export abstract class CoreRootStore {
     this.instance.hydrate(initialData.instance);
     this.workspace.hydrate(initialData.workspace);
   }
+
+  resetAfterLogout() {
+    this.user.reset();
+    this.instance.reset();
+    this.workspace.reset();
+  }
+
+  // won't work because the RootStore instance in context did not change
+  // uSES still would be using the old subscribe function
+  // reset() {
+  //   this.instance = new InstanceStore();
+  //   // etc...
+  // }
 }

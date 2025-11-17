@@ -9,7 +9,6 @@ import {
   IInstanceInfo,
   TInstanceUpdate,
 } from "@syncturtle/types";
-
 import { Emitter } from "@syncturtle/utils";
 
 export const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -41,13 +40,11 @@ export interface IInstanceStore {
   getServerSnapshot(): TSnapshot;
   hydrate: (data: IInstanceInfo) => void;
   fetchInstanceInfo: () => Promise<IInstanceInfo | undefined>;
-  updateInstanceInfo: (data: TInstanceUpdate, csrfToken: string) => Promise<IInstance | undefined>;
+  updateInstanceInfo: (data: TInstanceUpdate) => Promise<IInstance | undefined>;
   fetchInstanceAdmins: () => Promise<IInstanceAdmin[] | undefined>;
   fetchInstanceConfigurations: () => Promise<IInstanceConfiguration[]>;
-  updateInstanceConfigurations: (
-    data: Partial<TFormattedInstanceConfiguration>,
-    csrfToken: string
-  ) => Promise<IInstanceConfiguration[]>;
+  updateInstanceConfigurations: (data: Partial<TFormattedInstanceConfiguration>) => Promise<IInstanceConfiguration[]>;
+  reset: () => void;
 }
 
 const initial: TSnapshot = {
@@ -111,9 +108,9 @@ export class InstanceStore implements IInstanceStore {
     }
   };
 
-  public updateInstanceInfo = async (data: TInstanceUpdate, csrfToken: string) => {
+  public updateInstanceInfo = async (data: TInstanceUpdate) => {
     try {
-      const instanceResponse = await this.instanceService.update(data, csrfToken);
+      const instanceResponse = await this.instanceService.update(data);
       if (instanceResponse) {
         this.set({ instance: instanceResponse });
       }
@@ -150,9 +147,9 @@ export class InstanceStore implements IInstanceStore {
     }
   };
 
-  public updateInstanceConfigurations = async (data: Partial<TFormattedInstanceConfiguration>, csrfToken: string) => {
+  public updateInstanceConfigurations = async (data: Partial<TFormattedInstanceConfiguration>) => {
     try {
-      const res = await this.instanceService.updateConfigurations(data, csrfToken);
+      const res = await this.instanceService.updateConfigurations(data);
 
       const current = this._snap.instanceConfigurations ?? [];
       const byKey = new Map(res.map((r) => [r.key, r]));
@@ -162,10 +159,14 @@ export class InstanceStore implements IInstanceStore {
       this.set({ instanceConfigurations: next });
       return res;
     } catch (error) {
-      console.error("Error updating instance configurations");
+      console.log(error);
       throw error;
     }
   };
+
+  public reset() {
+    this.set({ ...initial });
+  }
 
   private toFormatted(configs?: IInstanceConfiguration[] | null): TFormattedInstanceConfiguration | undefined {
     if (!configs) return undefined;

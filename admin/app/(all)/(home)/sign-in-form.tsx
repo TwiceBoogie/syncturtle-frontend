@@ -25,20 +25,9 @@ const authService = new AuthService();
 
 export const InstanceSignInForm: FC = () => {
   // state
-  const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<TFormData>(initialData);
   const [showPassword, setShowPassword] = useState(false);
-
-  useEffect(() => {
-    const fetchCsrfToken = async () => {
-      if (csrfToken === undefined) {
-        const { csrfToken: token } = await authService.requestCSRFToken();
-        setCsrfToken(token);
-      }
-    };
-    fetchCsrfToken();
-  }, [csrfToken]);
 
   const handleFormChange = (key: keyof TFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -51,22 +40,10 @@ export const InstanceSignInForm: FC = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSubmitting(true);
+
     try {
-      setIsSubmitting(true);
-      const url = `${API_BASE_URL}/api/v1/auth/admin/login`;
-      console.log("POST ->", window.location.origin + url);
-      const res = await fetch(`${API_BASE_URL}/api/v1/auth/admin/login`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          ...(csrfToken ? { "X-CSRF-TOKEN": csrfToken } : {}),
-        },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) {
-        throw new Error(`Http ${res.status}`);
-      }
+      await authService.login(formData);
 
       await Promise.all([mutate("CURRENT_USER"), mutate("INSTANCE_ADMINS")]);
     } catch (error) {

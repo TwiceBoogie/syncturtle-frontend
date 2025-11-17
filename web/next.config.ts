@@ -4,9 +4,9 @@ const nextConfig: NextConfig = {
   /* config options here */
   // transpilePackages: ["@syncturtle/ui"],
   trailingSlash: true,
-  reactStrictMode: false,
-  swcMinify: true,
-  output: "standalone",
+  // reactStrictMode: false,
+  // swcMinify: true,
+  // output: "standalone",
   async rewrites() {
     const rewrites = [];
     if (process.env.NEXT_PUBLIC_ADMIN_BASE_URL || process.env.NEXT_PUBLIC_ADMIN_BASE_PATH) {

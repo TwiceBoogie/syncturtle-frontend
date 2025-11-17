@@ -1,5 +1,6 @@
-import { WorkspaceService } from "@/services/workspace.service";
+import { ICreateWorkspace, WorkspaceService } from "@/services/workspace.service";
 import { IWorkspace, Listener, TPaginationInfo, Unsub } from "@syncturtle/types";
+
 import { Emitter } from "@syncturtle/utils";
 
 type TLoader = "init-loader" | "mutation" | "pagination" | "loaded" | undefined;
@@ -29,12 +30,13 @@ export interface IWorkspaceStore {
   getWorkspaceById: (workspaceId: string) => IWorkspace | undefined;
   fetchWorkspaces: () => Promise<IWorkspace[]>;
   fetchNextWorkspaces: () => Promise<IWorkspace[]>;
-  //   createWorkspace: (data: IWorkspace, csrfToken: string) => Promise<IWorkspace>;
+  createWorkspace: (data: ICreateWorkspace) => Promise<IWorkspace>;
+  reset: () => void;
 }
 
 export class WorkspaceStore implements IWorkspaceStore {
   private _snap: TSnapshot = initial;
-  private emitter: Emitter;
+  private emitter: InstanceType<typeof Emitter>;
   private workspaceService: WorkspaceService;
 
   constructor() {
@@ -61,6 +63,7 @@ export class WorkspaceStore implements IWorkspaceStore {
         this.set({ loader: "init-loader" });
       }
       const paginationData = await this.workspaceService.list();
+
       const { results, ...paginationInfo } = paginationData;
 
       const nextMap: Record<string, IWorkspace> = {};
@@ -107,6 +110,28 @@ export class WorkspaceStore implements IWorkspaceStore {
       console.error("Erorr fetching next workspaces", error);
       throw error;
     }
+  };
+
+  public createWorkspace = async (data: ICreateWorkspace): Promise<IWorkspace> => {
+    try {
+      this.set({ loader: "mutation" });
+      const workspace = await this.workspaceService.create(data);
+      const nextMap = { ...this._snap.workspaces };
+      nextMap[workspace.id] = workspace;
+
+      this.set({ workspaces: nextMap });
+      return workspace;
+    } catch (error) {
+      console.error("Error creating workspace", error);
+      throw error;
+    } finally {
+      this.set({ loader: "loaded" });
+    }
+  };
+
+  public reset = () => {
+    this._snap = { ...initial };
+    this.emitter.emit();
   };
 
   private set(patch: Partial<TSnapshot>) {

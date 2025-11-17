@@ -16,3 +16,12 @@ export type TPaginationInfo = {
   perPage?: number;
   totalResults: number;
 };
+
+export interface IApiErrorPayload {
+  type?: string;
+  status?: number;
+  message?: string;
+  fieldErrors?: Record<string, string[]>;
+  path?: string;
+  timestamp?: string;
+}

@@ -21,23 +21,11 @@ export const GeneralForm: FC<IGeneralForm> = (props) => {
   const { instance, instanceAdmins } = props;
   // hooks
   const { updateInstanceInfo } = useInstance();
-  // state
-  const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<TInstanceUpdate>({
     instanceName: instance?.instanceName,
     namespace: instance?.namespace,
   });
-
-  useEffect(() => {
-    const fetchCsrfToken = async () => {
-      if (csrfToken === undefined) {
-        const { csrfToken: token } = await authService.requestCSRFToken();
-        setCsrfToken(token);
-      }
-    };
-    fetchCsrfToken();
-  }, [csrfToken]);
 
   const handleFormChange = (key: keyof TInstanceUpdate, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -46,20 +34,12 @@ export const GeneralForm: FC<IGeneralForm> = (props) => {
   const onSubmit = async () => {
     try {
       setIsSubmitting(true);
-      if (csrfToken) {
-        await updateInstanceInfo(formData, csrfToken);
-        addToast({
-          title: "Success",
-          description: "Settings updated successfully",
-          color: "success",
-        });
-      } else {
-        addToast({
-          title: "Csrf token error",
-          description: "Must have a valid csrf token",
-          color: "danger",
-        });
-      }
+      await updateInstanceInfo(formData);
+      addToast({
+        title: "Success",
+        description: "Settings updated successfully",
+        color: "success",
+      });
     } catch (error) {
       console.error(error);
       addToast({

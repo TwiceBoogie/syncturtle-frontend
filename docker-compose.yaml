@@ -12,3 +12,8 @@ services:
       context: .
       dockerfile: ./admin/Dockerfile.admin
     restart: always
+
+networks:
+  frontend:
+    external: true
+    name: syncturtle-frontend

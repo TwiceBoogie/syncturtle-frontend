@@ -13,50 +13,39 @@ export interface IInstance {
   createdAt: string;
   updatedAt: string;
   instanceName: string | undefined;
-  // whitelist_emails: string | undefined;
   instanceId: string | undefined;
-  // license_key: string | undefined;
   currentVersion: string | undefined;
   latestVersion: string | undefined;
   lastCheckedAt: string | undefined;
   namespace: string | undefined;
-  // is_telemetry_enabled: boolean;
-  // is_support_required: boolean;
+  isTelemetryEnabled: boolean;
+  isSupportRequired: boolean;
   isActivated: boolean;
   isSetupDone: boolean;
-  // is_signup_screen_visited: boolean;
-  // user_count: number | undefined;
   isVerified: boolean;
   createdBy: string | undefined;
   updatedBy: string | undefined;
-  // workspaces_exist: boolean;
+  workspacesExist: boolean;
 }
 
 export type TInstanceUpdate = Partial<Pick<IInstance, "instanceName" | "namespace">>;
 
 export interface IInstanceConfig {
   enableSignup: boolean;
-  // is_workspace_creation_disabled: boolean;
+  isWorkspaceCreationDisabled: boolean;
   isGoogleEnabled: boolean;
   isGithubEnabled: boolean;
   isGitlabEnabled: boolean;
   isMagicLoginEnabled: boolean;
   isEmailPasswordEnabled: boolean;
   githubAppName: string | undefined;
-  // slack_client_id: string | undefined;
-  // posthog_api_key: string | undefined;
-  // posthog_host: string | undefined;
-  // has_unsplash_configured: boolean;
-  // has_llm_configured: boolean;
-  // file_size_limit: number | undefined;
+  posthogApiKey: string | undefined;
+  posthogHost: string | undefined;
   isSmtpConfigured: boolean;
   appBaseUrl: string | undefined;
-  // space_base_url: string | undefined;
   adminBaseUrl: string | undefined;
-  // intercom
-  // is_intercom_enabled: boolean;
-  // intercom_app_id: string | undefined;
-  // instance_changelog_url?: string;
+  isIntercomEnabled: boolean;
+  intercomAppId: string | undefined;
 }
 
 export interface IInstanceAdmin {
@@ -69,9 +58,12 @@ export interface IInstanceAdmin {
   createdAt: string;
 }
 
+export type TInstanceIntercomConfigurationKeys = "IS_INTERCOM_ENABLED" | "INTERCOM_APP_ID";
+
 export type TInstanceConfigurationKeys =
   | TInstanceEmailConfigurationKeys
   | TInstanceAuthenticationKeys
+  | TInstanceIntercomConfigurationKeys
   | TInstanceWorkspaceConfigurationKeys;
 
 export interface IInstanceConfiguration {

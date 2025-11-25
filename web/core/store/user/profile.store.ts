@@ -8,13 +8,13 @@ type TProfileError = {
   message: string;
 };
 
-export type TSnapshot = {
+export type TUserProfileSnapshot = {
   isLoading: boolean;
   error: TProfileError | undefined;
   data: TUserProfile;
 };
 
-const initial: TSnapshot = {
+const initialSnapshot: TUserProfileSnapshot = {
   isLoading: false,
   error: undefined,
   data: {
@@ -38,10 +38,15 @@ const initial: TSnapshot = {
 };
 
 export interface IProfileStore {
-  // uSES
+  // required for useSyncExternalStore
   subscribe: (cb: Listener) => Unsub;
-  getSnapshot: () => TSnapshot;
-  getServerSnapshot: () => TSnapshot;
+  getSnapshot: () => TUserProfileSnapshot;
+  getServerSnapshot: () => TUserProfileSnapshot;
+  // observables
+  isLoading: boolean;
+  error: TProfileError | undefined;
+  data: TUserProfile;
+  // fetch + actions
   fetchUserProfile: () => Promise<TUserProfile | undefined>;
   //   updateUserProfile: (data: Partial<TUserProfile>) => Promise<TUserProfile | undefined>;
   //   finishUserOnboarding: () => Promise<void>;
@@ -50,25 +55,44 @@ export interface IProfileStore {
 }
 
 export class ProfileStore implements IProfileStore {
-  // private
-  private _snap: TSnapshot = initial;
-  private emitter: Emitter;
+  private _snap: TUserProfileSnapshot = initialSnapshot;
+  private emitter: InstanceType<typeof Emitter>;
+
+  // external deps
   private userService: UserService;
 
-  constructor(private store: CoreRootStore) {
+  constructor(private _rootStore: CoreRootStore) {
     this.emitter = new Emitter();
+
     this.userService = new UserService();
   }
 
+  // useSyncExternalStore integration
   public subscribe = (cb: Listener): Unsub => this.emitter.subscribe(cb);
-  public getSnapshot = (): TSnapshot => this._snap;
-  public getServerSnapshot = (): TSnapshot => this._snap;
+  public getSnapshot = (): TUserProfileSnapshot => this._snap;
+  public getServerSnapshot = (): TUserProfileSnapshot => this._snap;
 
-  public fetchUserProfile = (): Promise<TUserProfile | undefined> => {
+  // raw getters for state
+  get isLoading(): boolean {
+    return this._snap.isLoading;
+  }
+
+  get error(): TProfileError | undefined {
+    return this._snap.error;
+  }
+
+  get data(): TUserProfile {
+    return this._snap.data;
+  }
+
+  // fetch + actions
+  public fetchUserProfile = async (): Promise<TUserProfile | undefined> => {
     this.set({ isLoading: true, error: undefined });
+
     try {
-      const userProfile = this.userService.getCurrentUserProfile();
-      this.set({ isLoading: false, error: undefined });
+      const userProfile = await this.userService.getCurrentUserProfile();
+      this.set({ isLoading: false, data: userProfile });
+
       return userProfile;
     } catch (error) {
       this.set({
@@ -82,8 +106,24 @@ export class ProfileStore implements IProfileStore {
     }
   };
 
-  private set(patch: Partial<TSnapshot>) {
-    this._snap = { ...this._snap, ...patch };
+  private set(patch: Partial<TUserProfileSnapshot>) {
+    const prev = this._snap;
+    const next = { ...prev, ...patch };
+
+    let changed = false;
+    for (const key in next) {
+      const k = key as keyof TUserProfileSnapshot;
+      if (!Object.is(next[k], prev[k])) {
+        changed = true;
+        break;
+      }
+    }
+
+    if (!changed) {
+      return;
+    }
+
+    this._snap = next;
     this.emitter.emit();
   }
 }

@@ -10,6 +10,7 @@ import {
   TInstanceUpdate,
 } from "@syncturtle/types";
 import { Emitter } from "@syncturtle/utils";
+import { CoreRootStore } from "./root.store";
 
 export const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 const DEBUG_MIN_DELAY_MS = Number(process.env.NEXT_PUBLIC_DEBUG_DELAY_MS ?? 0);
@@ -24,46 +25,63 @@ type TError = {
 };
 
 // immutable snapshot of the store state; react components will read
-type TSnapshot = {
+type TInstanceSnapshot = {
+  isLoading: boolean;
+  error: TError | undefined;
   instance: IInstance | undefined;
   config: IInstanceConfig | undefined;
   instanceAdmins: IInstanceAdmin[] | undefined;
   instanceConfigurations: IInstanceConfiguration[] | undefined;
-  formattedConfig: TFormattedInstanceConfiguration | undefined;
-  isLoading: boolean;
-  error: TError | undefined;
+  instanceConfigurationsVersion: number;
 };
 
-export interface IInstanceStore {
-  subscribe(cb: () => void): Unsub;
-  getSnapshot(): TSnapshot;
-  getServerSnapshot(): TSnapshot;
+const initialSnapshot: TInstanceSnapshot = {
+  isLoading: false,
+  error: undefined,
+  instance: undefined,
+  config: undefined,
+  instanceAdmins: undefined,
+  instanceConfigurations: undefined,
+  instanceConfigurationsVersion: 0,
+};
+
+export interface IInstanceStoreInternal {
+  // required for useSyncExternalStore
+  _subscribe(cb: () => void): Unsub;
+  _getSnapshot(): TInstanceSnapshot;
+  _getServerSnapshot(): TInstanceSnapshot;
+  // observables
+  isLoading: boolean;
+  error: TError | undefined;
+  instance: IInstance | undefined;
+  config: IInstanceConfig | undefined;
+  instanceAdmins: IInstanceAdmin[] | undefined;
+  instanceConfigurations: IInstanceConfiguration[] | undefined;
+  // computed
+  formattedConfig: TFormattedInstanceConfiguration | undefined;
+  // fetch + actions
   hydrate: (data: IInstanceInfo) => void;
   fetchInstanceInfo: () => Promise<IInstanceInfo | undefined>;
   updateInstanceInfo: (data: TInstanceUpdate) => Promise<IInstance | undefined>;
   fetchInstanceAdmins: () => Promise<IInstanceAdmin[] | undefined>;
   fetchInstanceConfigurations: () => Promise<IInstanceConfiguration[]>;
   updateInstanceConfigurations: (data: Partial<TFormattedInstanceConfiguration>) => Promise<IInstanceConfiguration[]>;
+  // disableEmail: () => Promise<void>;
   reset: () => void;
 }
 
-const initial: TSnapshot = {
-  instance: undefined,
-  config: undefined,
-  instanceAdmins: undefined,
-  instanceConfigurations: undefined,
-  formattedConfig: undefined,
-  isLoading: false,
-  error: undefined,
-};
+export type TInstanceStore = Omit<IInstanceStoreInternal, "_subscribe" | "_getSnapshot" | "_getServerSnapshot">;
 
-export class InstanceStore implements IInstanceStore {
-  private _snap: TSnapshot = initial;
-  private emitter: Emitter;
+export class InstanceStore implements IInstanceStoreInternal {
+  private _snap: TInstanceSnapshot = initialSnapshot;
+  private emitter: InstanceType<typeof Emitter>;
+
+  // external deps
   private instanceService: InstanceService;
 
-  constructor() {
+  constructor(private _rootStore: CoreRootStore) {
     this.emitter = new Emitter();
+
     this.instanceService = new InstanceService();
   }
 
@@ -77,24 +95,89 @@ export class InstanceStore implements IInstanceStore {
     }
   }
 
-  public subscribe = (cb: () => void): Unsub => {
-    // console.log(cb);
-    return this.emitter.subscribe(cb);
+  // useSyncExternalStore integration
+  /** @internal */
+  public _subscribe = (cb: () => void): Unsub => this.emitter.subscribe(cb);
+  /** @internal */
+  public _getSnapshot = (): TInstanceSnapshot => this._snap;
+  /** @internal */
+  public _getServerSnapshot = (): TInstanceSnapshot => this._snap;
+
+  // raw getters for state
+  get isLoading(): boolean {
+    return this._snap.isLoading;
+  }
+
+  get error(): TError | undefined {
+    return this._snap.error;
+  }
+
+  get instance(): IInstance | undefined {
+    return this._snap.instance;
+  }
+
+  get config(): IInstanceConfig | undefined {
+    return this._snap.config;
+  }
+
+  get instanceAdmins(): IInstanceAdmin[] | undefined {
+    return this._snap.instanceAdmins;
+  }
+
+  get instanceConfigurations(): IInstanceConfiguration[] | undefined {
+    return this._snap.instanceConfigurations;
+  }
+
+  // cached compute: formattedConfig
+  private _cacheFormattedConfig?: {
+    instanceConfigurationsVersion: number;
+    value: TFormattedInstanceConfiguration | undefined;
   };
 
-  public getSnapshot = (): TSnapshot => this._snap;
-  public getServerSnapshot = (): TSnapshot => this._snap;
+  get formattedConfig(): TFormattedInstanceConfiguration | undefined {
+    const { instanceConfigurationsVersion, instanceConfigurations } = this._snap;
+
+    if (!instanceConfigurations) return;
+
+    const cached = this._cacheFormattedConfig;
+    if (cached && cached.instanceConfigurationsVersion === instanceConfigurationsVersion) {
+      return cached.value;
+    }
+
+    // recompute
+    const formatted = instanceConfigurations.reduce((formData: TFormattedInstanceConfiguration, config) => {
+      formData[config.key] = config.value;
+      return formData;
+    }, {} as TFormattedInstanceConfiguration);
+
+    this._cacheFormattedConfig = {
+      instanceConfigurationsVersion,
+      value: formatted,
+    };
+
+    return formatted;
+  }
 
   public fetchInstanceInfo = async () => {
+    const { instance } = this._snap;
     try {
-      this.set({ isLoading: true, error: undefined });
+      if (instance === undefined) {
+        this.set({ isLoading: true });
+      }
+      this.set({ error: undefined });
+
       const instanceInfo = await this.instanceService.info();
-      // console.log(instanceInfo);
+
+      if (instance === undefined && !instanceInfo.instance.workspacesExist) {
+        this._rootStore.theme.toggleNewUserPopup();
+      }
+
       this.set({
         instance: instanceInfo.instance,
         config: instanceInfo.config,
         isLoading: false,
       });
+
       return instanceInfo;
     } catch (error) {
       this.set({
@@ -138,7 +221,9 @@ export class InstanceStore implements IInstanceStore {
     try {
       const instanceConfigurations = await this.instanceService.configurations();
       if (instanceConfigurations) {
-        this.set({ instanceConfigurations: instanceConfigurations, isLoading: false });
+        this.set({
+          instanceConfigurations: instanceConfigurations,
+        });
       }
       return instanceConfigurations;
     } catch (error) {
@@ -156,7 +241,9 @@ export class InstanceStore implements IInstanceStore {
 
       const next = current.map((cfg) => byKey.get(cfg.key) ?? cfg);
 
-      this.set({ instanceConfigurations: next });
+      this.set({
+        instanceConfigurations: next,
+      });
       return res;
     } catch (error) {
       console.log(error);
@@ -165,22 +252,36 @@ export class InstanceStore implements IInstanceStore {
   };
 
   public reset() {
-    this.set({ ...initial });
+    this.set({ ...initialSnapshot });
   }
 
-  private toFormatted(configs?: IInstanceConfiguration[] | null): TFormattedInstanceConfiguration | undefined {
-    if (!configs) return undefined;
-    return configs.reduce((acc, c) => {
-      acc[c.key] = c.value;
-      return acc;
-    }, {} as TFormattedInstanceConfiguration);
-  }
+  private set(patch: Partial<TInstanceSnapshot>) {
+    const prev = this._snap;
+    let next: TInstanceSnapshot = { ...prev, ...patch };
 
-  private set(patch: Partial<TSnapshot>) {
-    const next = { ...this._snap, ...patch } as TSnapshot;
+    // if instanceConfiguration changed, bump version & clear cache
+    if (
+      Object.prototype.hasOwnProperty.call(patch, "instanceConfigurations") &&
+      !Object.is(prev.instanceConfigurations, next.instanceConfigurations)
+    ) {
+      next = {
+        ...next,
+        instanceConfigurationsVersion: prev.instanceConfigurationsVersion + 1,
+      };
+      this._cacheFormattedConfig = undefined;
+    }
 
-    if (patch.hasOwnProperty("instanceConfigurations")) {
-      next.formattedConfig = this.toFormatted(next.instanceConfigurations);
+    let changed = false;
+    for (const key in next) {
+      const k = key as keyof TInstanceSnapshot;
+      if (!Object.is(next[k], prev[k])) {
+        changed = true;
+        break;
+      }
+    }
+
+    if (!changed) {
+      return;
     }
 
     this._snap = next;

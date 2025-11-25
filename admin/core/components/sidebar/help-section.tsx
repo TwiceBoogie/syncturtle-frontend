@@ -25,7 +25,7 @@ export const AdminSidebarHelpSection: FC = () => {
           isSidebarCollapsed ? "flex-col justify-center" : "justify-between w-full"
         }`}
       >
-        <Button as={Link} href={redirectionLink} radius="sm" size="sm" isIconOnly={isSidebarCollapsed}>
+        <Button as={"a"} href={redirectionLink} radius="sm" size="sm" isIconOnly={isSidebarCollapsed}>
           <ExternalLink size={14} />
           {!isSidebarCollapsed && (
             <p>

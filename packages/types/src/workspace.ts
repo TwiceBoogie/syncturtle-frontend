@@ -12,7 +12,8 @@ export interface IWorkspace {
   readonly owner: IUser;
   name: string;
   url: string;
-  readonly totalMemberes: number;
+  logoUrl: string | null;
+  readonly totalMembers: number;
   readonly slug: string;
   readonly createdBy: string;
   readonly updatedBy: string;

@@ -1,26 +1,22 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 // hooks
 import { useTheme } from "next-themes";
 // images
-import SyncturtleBackgroundDark from "@/public/auth/syncturtle-bg-dark.jpg";
-import SyncturtleBackgroundLight from "@/public/auth/syncturtle-bg-light.jpg";
 import BlackHorizontalLogo from "@/public/syncturtle-logos/black-horizontal-logo-with-text.png";
 import WhiteHorizontalLogo from "@/public/syncturtle-logos/white-horizontal-logo-with-text.png";
 import { useUser } from "@/hooks/store";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { resolvedTheme } = useTheme();
   const { isUserLoggedIn } = useUser();
 
-  const background = resolvedTheme === "light" ? SyncturtleBackgroundLight : SyncturtleBackgroundDark;
-  const logo = resolvedTheme === "light" ? BlackHorizontalLogo : WhiteHorizontalLogo;
-
+  let logo = resolvedTheme === "light" ? BlackHorizontalLogo : WhiteHorizontalLogo;
   useEffect(() => {
     if (isUserLoggedIn === true) {
       router.push("/general");
@@ -36,9 +32,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Image src={logo} alt="Syncturtle logo" priority />
             </Link>
           </div>
-        </div>
-        <div className="absolute inset-0 z-0">
-          <Image src={background} className="w-screen h-full object-cover" alt="Syncturtle background" priority />
         </div>
         <div className="relative z-10 flex-grow">{children}</div>
       </div>

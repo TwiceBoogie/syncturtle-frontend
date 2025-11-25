@@ -1,5 +1,5 @@
 import { RootStore } from "@/syncturtle-web/store/root.store";
-import { createContext, ReactNode, useMemo, useRef } from "react";
+import { createContext, ReactNode, useMemo } from "react";
 
 // browser only cache; so no store at module load
 let rootStore: RootStore | null = null;

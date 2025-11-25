@@ -1,8 +1,8 @@
 import { API_BASE_URL } from "@/helpers/common.helper";
-import { IApiErrorPayload, IUser } from "@syncturtle/types";
-import { APIService2, HttpError } from "./api.service2";
+import { IUser, IApiErrorPayload } from "@syncturtle/types";
+import { APIService, HttpError } from "./api.service";
 
-export class UserService extends APIService2 {
+export class UserService extends APIService {
   constructor() {
     super(API_BASE_URL);
   }

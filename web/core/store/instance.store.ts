@@ -1,7 +1,6 @@
 import { InstanceService } from "@/services/instance.service";
 import { IInstance, IInstanceConfig, Unsub, IInstanceInfo } from "@syncturtle/types";
 import { Emitter } from "@syncturtle/utils";
-import { log } from "@/lib/log";
 
 type TError = {
   status: string;
@@ -13,45 +12,49 @@ type TError = {
 };
 
 // immutable snapshot of the store state; react components will read
-type TSnapshot = {
+type TInstanceSnapshot = {
+  isLoading: boolean;
   instance: IInstance | undefined;
   config: IInstanceConfig | undefined;
-  isLoading: boolean;
   error: TError | undefined;
+};
+
+// initial state used st first render and during SSR
+const initialSnapshot: TInstanceSnapshot = {
+  isLoading: false,
+  instance: undefined,
+  config: undefined,
+  error: undefined,
 };
 
 // public api contract the store exposes
 export interface IInstanceStore {
   // required for useSyncExternalStore
   subscribe(cb: () => void): Unsub; // tells react how to listen for changes
-  getSnapshot(): TSnapshot; // current store state snapshot
-  getServerSnapshot(): TSnapshot;
+  getSnapshot(): TInstanceSnapshot; // current store state snapshot
+  getServerSnapshot(): TInstanceSnapshot;
 
+  // observable
+  isLoading: boolean;
+  instance: IInstance | undefined;
+  config: IInstanceConfig | undefined;
+  error: TError | undefined;
   // actions; store methods that change state
   fetchInstanceInfo: () => Promise<void>;
   hydrate: (data: IInstanceInfo) => void;
 }
 
-// initial state used st first render and during SSR
-const initial: TSnapshot = {
-  instance: undefined,
-  config: undefined,
-  isLoading: false,
-  error: undefined,
-};
-
 export class InstanceStore implements IInstanceStore {
-  // PRIVATE INTERNALS
-  private _snap: TSnapshot = initial;
-  // if a fetch ongoing, keep promise to dedupe concurrent calls
-  private inflight: Promise<void> | null = null;
-  // pub/sub helper to notify react and other subscribers on changes
-  private emitter: Emitter;
-  // service
+  private _snap: TInstanceSnapshot = initialSnapshot;
+  private emitter: InstanceType<typeof Emitter>;
+
+  // external deps
   private instanceService: InstanceService;
+  // sub-stores
 
   constructor() {
     this.emitter = new Emitter();
+
     this.instanceService = new InstanceService();
   }
 
@@ -65,27 +68,42 @@ export class InstanceStore implements IInstanceStore {
     }
   }
 
+  // useSyncExternalStore integration
   // use arrow func so 'this' stays bound to instance
   // register listener, react will pass a callback here and call the
   // return func on onmount to unsubscribe
-  public subscribe = (cb: () => void): Unsub => {
-    // console.log(cb);
-    return this.emitter.subscribe(cb);
-  };
-  // return current state snapshot (read during render)
-  public getSnapshot = (): TSnapshot => this._snap;
-  // return server-render snapshot; stable and serializble
-  public getServerSnapshot = (): TSnapshot => this._snap;
+  public subscribe = (cb: () => void): Unsub => this.emitter.subscribe(cb);
+  public getSnapshot = (): TInstanceSnapshot => this._snap;
+  public getServerSnapshot = (): TInstanceSnapshot => this._snap;
 
+  // raw getters for state
+  get isLoading(): boolean {
+    return this._snap.isLoading;
+  }
+
+  get instance(): IInstance | undefined {
+    return this._snap.instance;
+  }
+
+  get config(): IInstanceConfig | undefined {
+    return this._snap.config;
+  }
+
+  get error(): TError | undefined {
+    return this._snap.error;
+  }
+
+  // crud actions
   public fetchInstanceInfo = async (): Promise<void> => {
-    // flip loading on and clear previous errors
     this.set({ isLoading: true, error: undefined });
+
     try {
       const instanceInfo = await this.instanceService.getInstanceInfo();
+      console.log(instanceInfo);
       this.set({
+        isLoading: false,
         instance: instanceInfo.instance,
         config: instanceInfo.config,
-        isLoading: false,
       });
     } catch (error) {
       this.set({
@@ -99,8 +117,24 @@ export class InstanceStore implements IInstanceStore {
     }
   };
 
-  private set(patch: Partial<TSnapshot>) {
-    this._snap = { ...this._snap, ...patch };
+  private set(patch: Partial<TInstanceSnapshot>) {
+    const prev = this._snap;
+    const next = { ...prev, ...patch };
+
+    let changed = false;
+    for (const key in next) {
+      const k = key as keyof TInstanceSnapshot;
+      if (!Object.is(next[k], prev[k])) {
+        changed = true;
+        break;
+      }
+    }
+
+    if (!changed) {
+      return;
+    }
+
+    this._snap = next;
     this.emitter.emit();
   }
 }

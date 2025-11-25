@@ -24,3 +24,18 @@ export type TInstanceAuthenticationConfigurationKeys =
   | TInstanceGitlabAuthenticationConfigurationKeys;
 
 export type TInstanceAuthenticationKeys = TInstanceAuthenticationMethodKeys | TInstanceAuthenticationConfigurationKeys;
+
+export type TGetBaseAuthenticationModeProps = {
+  disabled: boolean;
+  updateConfig: (key: TInstanceAuthenticationMethodKeys, value: string) => void;
+  resolvedTheme: string | undefined;
+};
+
+export type TInstanceAuthenticationModes = {
+  key: string;
+  name: string;
+  description: string;
+  icon: React.JSX.Element;
+  config: React.JSX.Element;
+  unavailable?: boolean;
+};

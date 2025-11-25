@@ -1,4 +1,4 @@
-import { FC, FormEvent, useEffect, useMemo, useState } from "react";
+import { FC, FormEvent, useMemo, useState } from "react";
 // heroui
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
@@ -7,14 +7,9 @@ import { Eye, EyeOff } from "lucide-react";
 import { mutate } from "swr";
 // components
 import { PasswordStrenthIndicator } from "@syncturtle/ui";
-// service
-import { AuthService } from "@/services/auth.service";
-// constants
-import { API_BASE_URL } from "@/helpers/common.helper";
+import { InstanceService } from "@/services/instance.service";
 
-const authService = new AuthService();
-
-type TFormData = {
+export type TFormData = {
   firstName: string;
   lastName: string;
   email: string;
@@ -36,10 +31,11 @@ type TShowPassword = {
   retypePassword: boolean;
 };
 
+const instanceService = new InstanceService();
+
 export const InstanceSetupForm: FC = (props) => {
   const {} = props;
   // state
-  const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPasswordInputFocused, setIsPasswordInputFocused] = useState(false);
   const [isRetryPasswordInputFocused, setIsRetryPasswordInputFocused] = useState(false);
@@ -48,16 +44,6 @@ export const InstanceSetupForm: FC = (props) => {
     password: false,
     retypePassword: false,
   });
-
-  useEffect(() => {
-    const fetchCsrfToken = async () => {
-      if (csrfToken === undefined) {
-        const { csrfToken: token } = await authService.requestCSRFToken();
-        setCsrfToken(token);
-      }
-    };
-    fetchCsrfToken();
-  }, [csrfToken]);
 
   const handleShowPassword = (key: keyof typeof showPassword) => {
     setShowPassword((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -69,27 +55,14 @@ export const InstanceSetupForm: FC = (props) => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    try {
-      setIsSubmitting(true);
-      const url = `${API_BASE_URL}/api/v1/instances/admins/sign-up`;
-      console.log("POST →", window.location.origin + url);
-      const res = await fetch(`${API_BASE_URL}/api/v1/instances/admins/sign-up`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          ...(csrfToken ? { "X-CSRF-TOKEN": csrfToken } : {}),
-        },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) {
-        throw new Error(`Http ${res.status}`);
-      }
+    setIsSubmitting(true);
 
+    try {
+      await instanceService.instanceSetup(formData);
       // no need to push user since these will be called
-      await Promise.all([mutate("CURRENT_USER"), mutate("INSTANCE_ADMINS")]);
+      await Promise.all([mutate("INSTANCE_DETAILS"), mutate("CURRENT_USER"), mutate("INSTANCE_ADMINS")]);
     } catch (error) {
-      setIsSubmitting(false);
+      console.log(error);
     } finally {
       setIsSubmitting(false);
     }

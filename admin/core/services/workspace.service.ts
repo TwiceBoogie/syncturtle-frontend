@@ -1,7 +1,11 @@
 import { API_BASE_URL } from "@/helpers/common.helper";
-import { IApiErrorPayload, IWorkspace, TWorkspacePaginationInfo } from "@syncturtle/types";
+import { TWorkspacePaginationInfo, IApiErrorPayload, IWorkspace } from "@syncturtle/types";
 import { ValidationError } from "@/helpers/errors.helper";
-import { APIService2, HttpError } from "./api.service2";
+import { APIService, HttpError } from "./api.service";
+
+export interface ISlugCheckResponse {
+  status: boolean;
+}
 
 export interface ICreateWorkspace {
   name: string;
@@ -10,7 +14,7 @@ export interface ICreateWorkspace {
   companyRole?: string;
 }
 
-export class WorkspaceService extends APIService2 {
+export class WorkspaceService extends APIService {
   constructor() {
     super(API_BASE_URL);
   }
@@ -28,9 +32,9 @@ export class WorkspaceService extends APIService2 {
     }
   }
 
-  async slugCheck(slug: string): Promise<any> {
+  async slugCheck(slug: string): Promise<ISlugCheckResponse> {
     try {
-      const response = await this.get<any>("/api/v1/workspaces/slug-check", { params: { slug } });
+      const response = await this.get<ISlugCheckResponse>("/api/v1/workspaces/slug-check", { params: { slug } });
       return response.data;
     } catch (error) {
       const err = error as HttpError<IApiErrorPayload>;

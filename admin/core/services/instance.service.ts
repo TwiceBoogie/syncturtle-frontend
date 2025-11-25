@@ -1,64 +1,45 @@
 import { API_BASE_URL } from "@/helpers/common.helper";
 import {
   IInstanceInfo,
+  IApiErrorPayload,
   TInstanceUpdate,
   IInstance,
   IInstanceAdmin,
   IInstanceConfiguration,
   TFormattedInstanceConfiguration,
-  IApiErrorPayload,
 } from "@syncturtle/types";
-import { APIService2, HttpError } from "./api.service2";
+import { APIService, HttpError } from "./api.service";
+import { TFormData } from "@/components/instance/setup-form";
 
-export class InstanceService extends APIService2 {
+export class InstanceService extends APIService {
   constructor() {
     super(API_BASE_URL);
   }
 
-  async info(): Promise<IInstanceInfo> {
-    try {
-      const response = await this.get<IInstanceInfo>("/api/v1/instances");
-      return response.data;
-    } catch (error) {
-      const err = error as HttpError<IApiErrorPayload>;
-      throw err.data ?? err;
-    }
+  info(): Promise<IInstanceInfo> {
+    return this.safeGet<IInstanceInfo>("/api/v1/instances");
   }
 
-  async update(data: TInstanceUpdate): Promise<IInstance> {
-    try {
-      const response = await this.patch<IInstance>("/api/v1/instances", data);
-      return response.data;
-    } catch (error) {
-      const err = error as HttpError<IApiErrorPayload>;
-      throw err.data ?? err;
-    }
+  update(data: TInstanceUpdate): Promise<IInstance> {
+    return this.safePatch<IInstance>("/api/v1/instances", data);
   }
 
-  async admins(): Promise<IInstanceAdmin[]> {
-    try {
-      const response = await this.get<IInstanceAdmin[]>("/api/v1/instances/admins");
-      return response.data;
-    } catch (error) {
-      const err = error as HttpError<IApiErrorPayload>;
-      throw err.data ?? err;
-    }
+  admins(): Promise<IInstanceAdmin[]> {
+    return this.safeGet<IInstanceAdmin[]>("/api/v1/instances/admins");
   }
 
-  async configurations(): Promise<IInstanceConfiguration[]> {
-    try {
-      const response = await this.get<IInstanceConfiguration[]>("/api/v1/instances/configurations");
-      return response.data;
-    } catch (error) {
-      const err = error as HttpError<IApiErrorPayload>;
-      throw err.data ?? err;
-    }
+  configurations(): Promise<IInstanceConfiguration[]> {
+    return this.safeGet<IInstanceConfiguration[]>("/api/v1/instances/configurations");
   }
 
-  async updateConfigurations(data: Partial<TFormattedInstanceConfiguration>): Promise<IInstanceConfiguration[]> {
+  updateConfigurations(data: Partial<TFormattedInstanceConfiguration>): Promise<IInstanceConfiguration[]> {
+    return this.safePatch<IInstanceConfiguration[]>("/api/v1/instances/configurations", data);
+  }
+
+  async instanceSetup(data: TFormData): Promise<void> {
     try {
-      const response = await this.patch<IInstanceConfiguration[]>("/api/v1/instances/configurations", data);
-      return response.data;
+      const response = await this.post<void>("/api/v1/instances/admins/sign-up", data);
+      console.log(response);
     } catch (error) {
       const err = error as HttpError<IApiErrorPayload>;
       throw err.data ?? err;

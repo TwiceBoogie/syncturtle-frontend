@@ -1,13 +1,13 @@
 import { API_BASE_URL } from "@/helpers/common.helper";
 import { IApiErrorPayload } from "@syncturtle/types";
-import { APIService2, HttpError } from "./api.service2";
+import { APIService, HttpError } from "./api.service";
 
 type TLoginDto = {
   email: string;
   password: string;
 };
 
-export class AuthService extends APIService2 {
+export class AuthService extends APIService {
   constructor() {
     super(API_BASE_URL);
   }

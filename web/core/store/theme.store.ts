@@ -2,55 +2,80 @@ import { Listener, Unsub } from "@syncturtle/types";
 import { Emitter } from "@syncturtle/utils";
 
 type TTheme = "dark" | "light";
-export type TSnapshot = {
-  theme: TTheme | undefined;
-  isSidebarCollapsed: boolean | undefined;
+
+export type TThemeSnapshot = {
+  // observables
+  sidebarCollapsed: boolean | undefined;
 };
 
-const initial: TSnapshot = {
-  theme: undefined,
-  isSidebarCollapsed: undefined,
+const initialSnapshot: TThemeSnapshot = {
+  sidebarCollapsed: undefined,
 };
 
 export interface IThemeStore {
-  // uSES
+  // required for useSyncExternalStore
   subscribe: (cb: Listener) => Unsub;
-  getSnapshot: () => TSnapshot;
-  getServerSnapshot: () => TSnapshot;
+  getSnapshot: () => TThemeSnapshot;
+  getServerSnapshot: () => TThemeSnapshot;
+  // observables
+  sidebarCollapsed: boolean | undefined;
+  // actions
   toggleSidebar: (collapse?: boolean) => void;
-  setTheme: (currentTheme: TTheme) => void;
 }
 
 export class ThemeStore implements IThemeStore {
-  // PRIVATE
-  private _snap: TSnapshot = initial;
-  private emitter: Emitter;
+  private _snap: TThemeSnapshot = initialSnapshot;
+  private emitter: InstanceType<typeof Emitter>;
 
   constructor() {
     this.emitter = new Emitter();
   }
 
+  // useSyncExternalStore integration
   public subscribe = (cb: Listener): Unsub => this.emitter.subscribe(cb);
-  public getSnapshot = (): TSnapshot => this._snap;
-  public getServerSnapshot = (): TSnapshot => initial;
-  public toggleSidebar = (collapsed?: boolean) => {
-    const next = typeof collapsed === "boolean" ? collapsed : !this._snap.isSidebarCollapsed;
-    this.set({ isSidebarCollapsed: next });
-    try {
-      localStorage.setItem("app_sidebar_collapsed", String(next));
-    } catch (error) {}
-  };
+  public getSnapshot = (): TThemeSnapshot => this._snap;
+  public getServerSnapshot = (): TThemeSnapshot => initialSnapshot;
 
-  public setTheme = (currentTheme: TTheme) => {
-    try {
-      localStorage.setItem("theme", currentTheme);
-    } catch (error) {
-      console.error("setting user theme error", error);
+  // raw getters for state
+  get sidebarCollapsed(): boolean | undefined {
+    return this._snap.sidebarCollapsed;
+  }
+
+  // action
+  public toggleSidebar = (collapsed?: boolean) => {
+    const next = this.computeNext(this._snap.sidebarCollapsed, collapsed);
+    this.set({ sidebarCollapsed: next });
+    if (typeof window !== "undefined") {
+      localStorage.setItem("app_sidebar_collapsed", next.toString());
     }
   };
 
-  private set(patch: Partial<TSnapshot>) {
-    this._snap = { ...this._snap, ...patch };
+  private computeNext(current: boolean | undefined, collapsed?: boolean): boolean {
+    if (collapsed === undefined) {
+      const prev = current ?? false;
+      return !prev;
+    }
+    return collapsed;
+  }
+
+  private set(patch: Partial<TThemeSnapshot>) {
+    const prev = this._snap;
+    const next = { ...prev, ...patch };
+
+    let changed = false;
+    for (const key in next) {
+      const k = key as keyof TThemeSnapshot;
+      if (!Object.is(next[k], prev[k])) {
+        changed = true;
+        break;
+      }
+    }
+
+    if (!changed) {
+      return;
+    }
+
+    this._snap = next;
     this.emitter.emit();
   }
 }

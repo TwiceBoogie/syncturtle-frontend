@@ -1,15 +1,20 @@
 import { FC, FormEvent, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+// heroui
 import { Button } from "@heroui/button";
 import { addToast } from "@heroui/toast";
 import { Alert } from "@heroui/alert";
 import { Form, Input, Select, SelectItem } from "@heroui/react";
-import { IApiErrorPayload, ICsrfTokenData, IWorkspace } from "@syncturtle/types";
-import { WEB_BASE_URL } from "@/helpers/common.helper";
+// service
 import { ICreateWorkspace, WorkspaceService } from "@/services/workspace.service";
-import { ValidationError } from "@/helpers/errors.helper";
-import { HttpError } from "@/services/api.service2";
-import { useRouter } from "next/navigation";
+import { HttpError } from "@/services/api.service";
+//store
 import { useWorkspace } from "@/hooks/store";
+//helpers
+import { ValidationError } from "@/helpers/errors.helper";
+import { WEB_BASE_URL } from "@/helpers/common.helper";
+import { IWorkspace, IApiErrorPayload } from "@syncturtle/types";
 
 const organizationSizeSelect = [
   {
@@ -71,9 +76,14 @@ export const WorkspaceCreateForm: FC = () => {
     try {
       // check slug availability and validate
       const slugRes = await workspaceService.slugCheck(formData.slug ?? "");
-      if (slugRes) {
-        console.log("should hit here");
-        await createWorkspace(formData);
+      if (slugRes && !slugRes.status) {
+        const response = await createWorkspace(formData);
+        console.log(response);
+        addToast({
+          title: "Success",
+          description: "Workspace has been created successfully.",
+          color: "success",
+        });
       }
     } catch (error: unknown) {
       if (error instanceof ValidationError) {
@@ -121,6 +131,11 @@ export const WorkspaceCreateForm: FC = () => {
         label="Set your workspace's URL"
         labelPlacement="outside"
         placeholder="workspace-name"
+        startContent={
+          <div className="pointer-events-none flex items-center">
+            <span className="text-default-400 text-small">{workspaceBaseURL}</span>
+          </div>
+        }
         value={(formData.slug ?? "").toLocaleLowerCase().trim().replace(/ /g, "-")}
         onValueChange={(value) => {
           setBannerError("");
@@ -140,9 +155,14 @@ export const WorkspaceCreateForm: FC = () => {
       >
         {(size) => <SelectItem>{size.label}</SelectItem>}
       </Select>
-      <Button type="submit" isDisabled={isSubmitting}>
-        Create workspace
-      </Button>
+      <div className="flex items-center py-1 gap-4">
+        <Button type="submit" isDisabled={isSubmitting} color="primary" radius="sm">
+          Create workspace
+        </Button>
+        <Button type="button" radius="sm" as={Link} href="/workspace">
+          Back
+        </Button>
+      </div>
     </Form>
   );
 };

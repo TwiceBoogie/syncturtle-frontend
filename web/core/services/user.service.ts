@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "@/helpers/common.helper";
-import { APIService } from "./api.service";
-import { IUser, TUserProfile } from "@syncturtle/types";
+import { APIService, HttpError } from "./api.service";
+import { IApiErrorPayload, IUser, TUserProfile } from "@syncturtle/types";
 
 export class UserService extends APIService {
   constructor() {
@@ -8,19 +8,22 @@ export class UserService extends APIService {
   }
 
   async currentUser(): Promise<IUser> {
-    // Using validateStatus: null to bypass interceptors for unauthorized errors.
-    return this.get("/api/v1/users/me/", { validateStatus: null })
-      .then((response) => response?.data)
-      .catch((error) => {
-        throw error?.response;
-      });
+    try {
+      const response = await this.get<IUser>("/api/v1/users/me");
+      return response.data;
+    } catch (error) {
+      const err = error as HttpError<IApiErrorPayload>;
+      throw err.data ?? err;
+    }
   }
 
   async getCurrentUserProfile(): Promise<TUserProfile> {
-    return this.get("/api/v1/users/me/profile/")
-      .then((response) => response?.data)
-      .catch((error) => {
-        throw error?.response;
-      });
+    try {
+      const response = await this.get<TUserProfile>("/api/v1/users/me/profile");
+      return response.data;
+    } catch (error) {
+      const err = error as HttpError<IApiErrorPayload>;
+      throw err.data ?? err;
+    }
   }
 }

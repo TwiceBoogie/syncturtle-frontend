@@ -8,8 +8,6 @@ import Image from "next/image";
 import { PageHead } from "@/components/core";
 // layouts
 import DefaultLayout from "@/layouts/default-layout";
-import { Suspense } from "react";
-import { fetchInstanceInfo } from "./layout";
 import { log } from "@/lib/log";
 // assets
 // import SyncturtleBackgroundDark from "@/public/auth/syncturtle-bg-dark.jpg";

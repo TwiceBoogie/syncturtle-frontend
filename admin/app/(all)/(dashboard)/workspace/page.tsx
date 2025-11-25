@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useSWR from "swr";
 // heroui
 import { Spinner } from "@heroui/spinner";
@@ -10,9 +10,10 @@ import { Button } from "@heroui/button";
 // store hooks
 import { useInstance, useWorkspace } from "@/hooks/store";
 // types
-import { TInstanceConfigurationKeys } from "@syncturtle/types";
 import { LoaderIcon } from "lucide-react";
 import { Link } from "@heroui/link";
+import { TInstanceConfigurationKeys } from "@syncturtle/types";
+import { WorkspaceListItem } from "@/components/workspace/list-workspace";
 
 export default function Workspace() {
   // states
@@ -123,9 +124,9 @@ export default function Workspace() {
                   </Link>
                 </div>
               </div>
-              <div>
+              <div className="flex flex-col gap-4 py-2">
                 {workspaceIds.map((workspaceId) => (
-                  <div>{workspaceId}</div>
+                  <WorkspaceListItem key={workspaceId} workspaceId={workspaceId} />
                 ))}
               </div>
               {hasNextPage && (

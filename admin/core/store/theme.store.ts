@@ -2,41 +2,65 @@ import { Listener, Unsub } from "@syncturtle/types";
 import { Emitter } from "@syncturtle/utils";
 
 type TTheme = "dark" | "light";
-type TSnapshot = {
+type TThemeSnapshot = {
   isNewUserPopup: boolean;
   theme: TTheme | undefined;
   isSidebarCollapsed: boolean | undefined;
 };
 
-export interface IThemeStore {
-  // uSES
-  subscribe: (cb: Listener) => Unsub;
-  getSnapshot: () => TSnapshot;
-  getServerSnapshot: () => TSnapshot;
+export interface IThemeStoreInternal {
+  // required for useSyncExternalStore
+  _subscribe: (cb: Listener) => Unsub;
+  _getSnapshot: () => TThemeSnapshot;
+  _getServerSnapshot: () => TThemeSnapshot;
+  // observables
+  isNewUserPopup: boolean;
+  theme: TTheme | undefined;
+  isSidebarCollapsed: boolean | undefined;
+  // actions
   toggleNewUserPopup: () => void;
   toggleSidebar: (collapsed: boolean) => void;
   setTheme: (currentTheme: TTheme) => void;
 }
 
-const initial: TSnapshot = {
+export type TThemeStore = Omit<IThemeStoreInternal, "_subscribe" | "_getSnapshot" | "_getServerSnapshot">;
+
+const initialSnapshot: TThemeSnapshot = {
   isNewUserPopup: false,
   theme: undefined,
   isSidebarCollapsed: undefined,
 };
 
-export class ThemeStore implements IThemeStore {
-  // private
-  private _snap: TSnapshot = initial;
-  private emitter: Emitter;
+export class ThemeStore implements IThemeStoreInternal {
+  private _snap: TThemeSnapshot = initialSnapshot;
+  private emitter: InstanceType<typeof Emitter>;
 
   constructor() {
     this.emitter = new Emitter();
   }
 
-  public subscribe = (cb: Listener): Unsub => this.emitter.subscribe(cb);
-  public getSnapshot = (): TSnapshot => this._snap;
-  public getServerSnapshot = (): TSnapshot => initial;
+  // useSyncExternalStore integration
+  /** @internal */
+  public _subscribe = (cb: Listener): Unsub => this.emitter.subscribe(cb);
+  /** @internal */
+  public _getSnapshot = (): TThemeSnapshot => this._snap;
+  /** @internal */
+  public _getServerSnapshot = (): TThemeSnapshot => initialSnapshot;
 
+  // raw getters for state
+  get isNewUserPopup(): boolean {
+    return this._snap.isNewUserPopup;
+  }
+
+  get theme(): TTheme | undefined {
+    return this._snap.theme;
+  }
+
+  get isSidebarCollapsed(): boolean | undefined {
+    return this._snap.isSidebarCollapsed;
+  }
+
+  // actions
   public toggleNewUserPopup = () => {
     this.set({ isNewUserPopup: !this._snap.isNewUserPopup });
   };
@@ -58,8 +82,24 @@ export class ThemeStore implements IThemeStore {
     this.set({ theme: currentTheme });
   };
 
-  private set(patch: Partial<TSnapshot>) {
-    this._snap = { ...this._snap, ...patch };
+  private set(patch: Partial<TThemeSnapshot>) {
+    const prev = this._snap;
+    const next: TThemeSnapshot = { ...prev, ...patch };
+
+    let changed = false;
+    for (const key in next) {
+      const k = key as keyof TThemeSnapshot;
+      if (!Object.is(next[k], prev[k])) {
+        changed = true;
+        break;
+      }
+    }
+
+    if (!changed) {
+      return;
+    }
+
+    this._snap = next;
     this.emitter.emit();
   }
 }

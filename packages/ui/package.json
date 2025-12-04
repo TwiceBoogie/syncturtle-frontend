@@ -2,7 +2,9 @@
   "name": "@syncturtle/ui",
   "version": "0.0.0",
   "private": true,
-  "sideEffects": false,
+  "sideEffects": [
+    "./styles/*.css"
+  ],
   "files": [
     "dist",
     "styles"

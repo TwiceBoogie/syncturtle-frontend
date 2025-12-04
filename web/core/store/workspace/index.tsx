@@ -21,11 +21,11 @@ const initialSnapshot: TWorkspaceSnapshot = {
   workspacesVersion: 0,
 };
 
-export interface IWorkspaceStore {
+export interface IWorkspaceStoreInternal {
   // required for useSyncExternalStore
-  subscribe: (cb: Listener) => Unsub;
-  getSnapshot: () => TWorkspaceSnapshot;
-  getServerSnapshot: () => TWorkspaceSnapshot;
+  _subscribe: (cb: Listener) => Unsub;
+  _getSnapshot: () => TWorkspaceSnapshot;
+  _getServerSnapshot: () => TWorkspaceSnapshot;
   // observables
   loader: boolean;
   workspaces: Record<string, IWorkspace>;
@@ -44,7 +44,9 @@ export interface IWorkspaceStore {
   //   deleteWorkspace: (workspaceSlug: string) => Promise<void>;
 }
 
-export class WorkspaceStore implements IWorkspaceStore {
+export type TWorkspaceStore = Omit<IWorkspaceStoreInternal, "_subscribe" | "_getSnapshot" | "_getServerSnapshot">;
+
+export class WorkspaceStore implements IWorkspaceStoreInternal {
   private _snap: TWorkspaceSnapshot = initialSnapshot;
   private emitter: InstanceType<typeof Emitter>;
 
@@ -63,9 +65,12 @@ export class WorkspaceStore implements IWorkspaceStore {
   }
 
   // useSyncExternalStore integration
-  public subscribe = (cb: Listener): Unsub => this.emitter.subscribe(cb);
-  public getSnapshot = (): TWorkspaceSnapshot => this._snap;
-  public getServerSnapshot = (): TWorkspaceSnapshot => this._snap;
+  /** @internal */
+  public _subscribe = (cb: () => void): Unsub => this.emitter.subscribe(cb);
+  /** @internal */
+  public _getSnapshot = (): TWorkspaceSnapshot => this._snap;
+  /** @internal */
+  public _getServerSnapshot = (): TWorkspaceSnapshot => this._snap;
 
   // raw getters for state
   get loader(): boolean {

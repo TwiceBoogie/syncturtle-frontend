@@ -1,15 +1,15 @@
 import { IInstanceStore, InstanceStore } from "./instance.store";
 import { IRouterStore, RouterStore } from "./router.store";
 import { IThemeStore, ThemeStore } from "./theme.store";
-import { IUserStore, UserStore } from "./user";
-import { IWorkspaceStore, WorkspaceStore } from "./workspace";
+import { TUserStore, UserStore } from "./user";
+import { TWorkspaceStore, WorkspaceStore } from "./workspace";
 
 export class CoreRootStore {
   router: IRouterStore;
   theme: IThemeStore;
   instance: IInstanceStore;
-  user: IUserStore;
-  workspace: IWorkspaceStore;
+  user: TUserStore;
+  workspace: TWorkspaceStore;
 
   constructor() {
     this.router = new RouterStore();

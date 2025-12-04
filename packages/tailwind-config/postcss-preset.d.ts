@@ -1,6 +1,6 @@
 // ts doesn't the the types for the ESM subpath
 declare const config: {
-  plugins: Record<String, unknown>;
+  plugins: Record<string, unknown>;
 };
 
 export default config;

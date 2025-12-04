@@ -1,5 +1,5 @@
 import { StoreContext } from "@/lib/store-context";
-import { IWorkspaceStore } from "@/store/workspace";
+import { IWorkspaceStoreInternal, TWorkspaceStore } from "@/store/workspace";
 import { useContext, useSyncExternalStore } from "react";
 
 export const useWorkspace = () => {
@@ -8,9 +8,9 @@ export const useWorkspace = () => {
     throw new Error("useWorkspace must be used inside a StoreProvider");
   }
 
-  const store: IWorkspaceStore = context.workspace;
+  const store = context.workspace as IWorkspaceStoreInternal;
 
-  useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
+  useSyncExternalStore(store._subscribe, store._getSnapshot, store._getServerSnapshot);
 
-  return store;
+  return store as TWorkspaceStore;
 };

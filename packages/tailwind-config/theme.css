@@ -165,6 +165,7 @@
   --brand-grad-to: #0b1110;
 
   --color-primary-100: 63, 118, 255;
+  --color-primary-200: 57, 106, 230;
 
   --color-background-100: 25, 25, 25; /* primary bg */
   --color-background-90: 32, 32, 32; /* secondary bg */
@@ -236,6 +237,7 @@
 
   --color-custom-primary: rgb(var(--color-primary-100));
   --color-custom-primary-100: rgb(var(--color-primary-100));
+  --color-custom-primary-200: rgb(var(--color-primary-200));
 
   --color-custom-text-100: rgb(var(--color-text-100));
   --color-custom-text-200: rgb(var(--color-text-200));

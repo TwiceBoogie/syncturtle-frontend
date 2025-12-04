@@ -40,3 +40,17 @@ export type TUserProfile = {
   createdAt: Date | string;
   updatedAt: Date | string;
 };
+
+export interface IUserSettings {
+  id: string | undefined;
+  email: string | undefined;
+  workspace: {
+    lastWorkspaceId: string | undefined;
+    lastWorkspaceSlug: string | undefined;
+    lastWorkspaceName: string | undefined;
+    lastWorkspaceLogo: string | undefined;
+    fallbackWorkspaceId: string | undefined;
+    fallbackWorkspaceSlug: string | undefined;
+    invites: number | undefined;
+  };
+}

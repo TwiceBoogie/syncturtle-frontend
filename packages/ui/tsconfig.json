@@ -1,9 +1,13 @@
 {
   "extends": "@syncturtle/typescript-config/react-library.json",
   "compilerOptions": {
-    "jsx": "react",
-    "lib": ["esnext", "dom"]
+    "baseUrl": ".",
+    "paths": {
+      "@syncturtle/utils": ["../utils/src/index.ts"],
+      "@syncturtle/types": ["../types/src/index.ts"],
+      "@syncturtle/constants": ["../constants/src/index.ts"]
+    }
   },
-  "include": ["."],
+  "include": ["src"],
   "exclude": ["dist", "build", "node_modules"]
 }

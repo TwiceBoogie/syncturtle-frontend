@@ -1,8 +1,9 @@
 import { IUser, Listener, Unsub } from "@syncturtle/types";
 import { CoreRootStore } from "../root.store";
 import { UserService } from "@/services/user.service";
-import { IProfileStore, ProfileStore } from "./profile.store";
+import { ProfileStore, TProfileStore } from "./profile.store";
 import { Emitter } from "@syncturtle/utils";
+import { TUserSettingsStore, UserSettingsStore } from "./settings.store";
 
 type TUserError = {
   status: string;
@@ -30,11 +31,11 @@ const initialSnapshot: TUserSnapshot = {
   data: undefined,
 };
 
-export interface IUserStore {
+export interface IUserStoreInternal {
   // required for useSyncExternalStore
-  subscribe: (cb: Listener) => Unsub;
-  getSnapshot: () => TUserSnapshot;
-  getServerSnapshot: () => TUserSnapshot;
+  _subscribe: (cb: Listener) => Unsub;
+  _getSnapshot: () => TUserSnapshot;
+  _getServerSnapshot: () => TUserSnapshot;
   // observables
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -48,10 +49,13 @@ export interface IUserStore {
   //   reset: () => void;
   //   signOut: () => Promise<void>;
   // sub-stores
-  userProfile: IProfileStore;
+  userProfile: TProfileStore;
+  userSettings: TUserSettingsStore;
 }
 
-export class UserStore implements IUserStore {
+export type TUserStore = Omit<IUserStoreInternal, "_subscribe" | "_getSnapshot" | "_getServerSnapshot">;
+
+export class UserStore implements IUserStoreInternal {
   private _snap: TUserSnapshot = initialSnapshot;
   private emitter: InstanceType<typeof Emitter>;
 
@@ -59,19 +63,24 @@ export class UserStore implements IUserStore {
   private userService: UserService;
 
   // sub-stores
-  userProfile: IProfileStore;
+  userProfile: TProfileStore;
+  userSettings: TUserSettingsStore;
 
   constructor(private _rootStore: CoreRootStore) {
     this.emitter = new Emitter();
 
     this.userService = new UserService();
     this.userProfile = new ProfileStore(_rootStore);
+    this.userSettings = new UserSettingsStore();
   }
 
   // useSyncExternalStore integration
-  public subscribe = (cb: Listener): Unsub => this.emitter.subscribe(cb);
-  public getSnapshot = (): TUserSnapshot => this._snap;
-  public getServerSnapshot = (): TUserSnapshot => this._snap;
+  /** @internal */
+  public _subscribe = (cb: () => void): Unsub => this.emitter.subscribe(cb);
+  /** @internal */
+  public _getSnapshot = (): TUserSnapshot => this._snap;
+  /** @internal */
+  public _getServerSnapshot = (): TUserSnapshot => this._snap;
 
   // raw getters for state
   get isAuthenticated(): boolean {
@@ -97,7 +106,11 @@ export class UserStore implements IUserStore {
       const user = await this.userService.currentUser();
 
       if (user && user.id) {
-        await Promise.all([this.userProfile.fetchUserProfile(), this._rootStore.workspace.fetchWorkspaces()]);
+        await Promise.all([
+          this.userProfile.fetchUserProfile(),
+          this.userSettings.fetchCurrentUserSettings(),
+          this._rootStore.workspace.fetchWorkspaces(),
+        ]);
         this.set({ data: user, isLoading: false, error: undefined });
       } else {
         this.set({ data: user, isLoading: false, isAuthenticated: false });

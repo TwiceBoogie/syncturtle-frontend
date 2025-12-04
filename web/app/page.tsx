@@ -1,25 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-// ui
-// import { useTheme } from "next-themes";
 //components
 import { PageHead } from "@/components/core";
 // layouts
 import DefaultLayout from "@/layouts/default-layout";
-import { log } from "@/lib/log";
-// assets
-// import SyncturtleBackgroundDark from "@/public/auth/syncturtle-bg-dark.jpg";
-// import SyncturtleBackground from "@/public/auth/syncturtle-bg-light.jpg";
-// import BlackHorizontalLogo from "@/public/plane-logos/black-horizontal-with-blue-logo.png";
-// import WhiteHorizontalLogo from "@/public/plane-logos/white-horizontal-with-blue-logo.png";
-// import { useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
-import { changeUrl } from "./action";
 import { AuthenticationWrapper } from "@/lib/wrappers/authentication-wrapper";
-import { EPageTypes } from "@/helpers/authentication.helper";
-// import { changeUrl } from "./action";
+import { EAuthModes, EPageTypes } from "@/helpers/authentication.helper";
+import { AuthRoot } from "@/components/accounts/auth-forms";
 
 export default function Home() {
   // const { resolvedTheme } = useTheme();
@@ -28,8 +17,8 @@ export default function Home() {
   // const router = useRouter();
 
   return (
-    <AuthenticationWrapper pageType={EPageTypes.NON_AUTHENTICATED}>
-      <DefaultLayout>
+    <DefaultLayout>
+      <AuthenticationWrapper pageType={EPageTypes.NON_AUTHENTICATED}>
         <div className="relative h-screen w-screen overflow-hidden">
           <PageHead title="Log in - Syncturtle" />
           {/* <div className="absolute inset-0 z-10">
@@ -52,11 +41,11 @@ export default function Home() {
               </div>
             </div>
             <div className="flex flex-col justify-center flex-grow container h-[100vh-60px] mx-auto max-w-lg px-10 lg:px-5 transition-all">
-              <Button>Move</Button>
+              <AuthRoot authMode={EAuthModes.SIGN_IN} />
             </div>
           </div>
         </div>
-      </DefaultLayout>
-    </AuthenticationWrapper>
+      </AuthenticationWrapper>
+    </DefaultLayout>
   );
 }

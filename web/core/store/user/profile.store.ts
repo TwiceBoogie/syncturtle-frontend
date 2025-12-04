@@ -37,11 +37,11 @@ const initialSnapshot: TUserProfileSnapshot = {
   },
 };
 
-export interface IProfileStore {
+export interface IProfileStoreInternal {
   // required for useSyncExternalStore
-  subscribe: (cb: Listener) => Unsub;
-  getSnapshot: () => TUserProfileSnapshot;
-  getServerSnapshot: () => TUserProfileSnapshot;
+  _subscribe: (cb: Listener) => Unsub;
+  _getSnapshot: () => TUserProfileSnapshot;
+  _getServerSnapshot: () => TUserProfileSnapshot;
   // observables
   isLoading: boolean;
   error: TProfileError | undefined;
@@ -54,7 +54,9 @@ export interface IProfileStore {
   //   updateUserTheme: (data: Partial<IUserTheme>) => Promise<TUserProfile | undefined>;
 }
 
-export class ProfileStore implements IProfileStore {
+export type TProfileStore = Omit<IProfileStoreInternal, "_subscribe" | "_getSnapshot" | "_getServerSnapshot">;
+
+export class ProfileStore implements IProfileStoreInternal {
   private _snap: TUserProfileSnapshot = initialSnapshot;
   private emitter: InstanceType<typeof Emitter>;
 
@@ -68,9 +70,12 @@ export class ProfileStore implements IProfileStore {
   }
 
   // useSyncExternalStore integration
-  public subscribe = (cb: Listener): Unsub => this.emitter.subscribe(cb);
-  public getSnapshot = (): TUserProfileSnapshot => this._snap;
-  public getServerSnapshot = (): TUserProfileSnapshot => this._snap;
+  /** @internal */
+  public _subscribe = (cb: () => void): Unsub => this.emitter.subscribe(cb);
+  /** @internal */
+  public _getSnapshot = (): TUserProfileSnapshot => this._snap;
+  /** @internal */
+  public _getServerSnapshot = (): TUserProfileSnapshot => this._snap;
 
   // raw getters for state
   get isLoading(): boolean {

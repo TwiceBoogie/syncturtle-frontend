@@ -10,6 +10,7 @@
     "clean": "rm -rf .turbo && rm -rf .next && rm -rf node_modules && rm -rf dist"
   },
   "dependencies": {
+    "@bprogress/next": "^3.2.12",
     "@heroui/react": "^2.8.4",
     "@syncturtle/constants": "workspace:*",
     "@syncturtle/types": "workspace:^",
@@ -24,6 +25,7 @@
     "posthog-js": "^1.297.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-hook-form": "^7.66.1",
     "swr": "^2.3.6"
   },
   "devDependencies": {

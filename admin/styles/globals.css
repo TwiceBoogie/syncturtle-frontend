@@ -3,5 +3,7 @@
 
 @plugin "../app/hero.ts";
 
+@source "../../packages/ui/src/**/*.{ts,tsx,js,jsx}";
+
 @source "../../node_modules/@heroui/theme";
 @custom-variant dark (&:is(.dark *));

@@ -1,9 +1,14 @@
 {
-  "extends": "@syncturtle/typescript-config/react-library.json",
+  "extends": "@syncturtle/typescript-config/node-library.json",
   "compilerOptions": {
-    "jsx": "react",
-    "lib": ["esnext", "dom"]
+    // "jsx": "react",
+    // "lib": ["esnext", "dom"]
+    // DOM types if any utils touch window/document later
+    "lib": ["ES2020", "DOM"],
+
+    // local workspace paths for editor + DTS to resolve to src
+    "baseUrl": ".",
   },
-  "include": ["./src"],
+  "include": ["src"],
   "exclude": ["dist", "build", "node_modules"]
 }

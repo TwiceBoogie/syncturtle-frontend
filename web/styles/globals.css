@@ -1,5 +1,9 @@
 @import "@syncturtle/tailwind-config/theme.css";
 @plugin "../app/hero.ts";
 
+@source "../app/**/*.{ts,tsx,js,jsx,mdx}";
+@source "../core/**/*.{ts,tsx,js,jsx,mdx}";
+@source "../../packages/ui/src/**/*.{ts,tsx,js,jsx}";
+
 @source "../../node_modules/@heroui/theme";
 @custom-variant dark (&:is(.dark *));
